@@ -2,17 +2,28 @@ const express=require('express');
 const server=express();
 server.set('view engine','ejs')
 server.use(express.urlencoded({extended : true}));
-const Users=require('../Habbit Tracker Project/models/usersModel');
+const Users=require('../Gamify-habit-tracker/models/usersModel');
 const mongoose = require('mongoose');
 let currentUserName='';
 server.get('/',(req,res)=>{
     res.render('Registration/login');
 })
 
-server.post('/FriendsSuggestion',async(req,res)=>{
-    console.log(req.body.userage);
-    (await Users.findOne({username : currentUserName})).age=req.body.userage
+server.post('/Homepage',async(req,res)=>{
+    // Assuming Users is your model
+    console.log('hello in server post request');
+    const user = await Users.findOne({ username: currentUserName });
+    console.log('hello in server post request with user : '+user.username);
+    if (!user) {
+        console.error(`User with username ${currentUserName} not found`);
+        return res.redirect('/');; // Or handle it in another way (e.g., send a response or log)
+    }
 
+    // Safely push to the friends array
+    user.friends.push(req.body.userage);
+    user.age=req.body.userage;
+    await user.save()
+    return res.render('Homepage');
 })
 
 server.post('/signup',async(req,res)=>{
