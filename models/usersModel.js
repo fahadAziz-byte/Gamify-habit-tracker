@@ -11,4 +11,8 @@ let usersSchema=mongoose.Schema({
 });
 
 let usersModel=mongoose.model('Users',usersSchema);
+
 module.exports=usersModel;
+
+
+

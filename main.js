@@ -5,6 +5,7 @@ server.use(express.urlencoded({extended : true}));
 const Users=require('../Gamify-habit-tracker/models/usersModel');
 const mongoose = require('mongoose');
 let currentUserName='';
+
 server.get('/',(req,res)=>{
     res.render('Registration/login');
 })
@@ -53,6 +54,13 @@ server.post('/login',async(req,res)=>{
         return res.render('Homepage');
     }
     return res.render('Registration/Login', { error: 'No Such User exists' });
+})
+
+server.get('/friendRequests',async(req,res)=>{
+    const currentUser=await Users.findOne({username:currentUserName});
+    const friendsList=await Users.find({username : {$in : currentUser.friends}});
+    const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
+    res.render('friendRequests.ejs',{friendsList,suggestedFriendsList});
 })
 
 server.get('/progress',(req,res)=>{
