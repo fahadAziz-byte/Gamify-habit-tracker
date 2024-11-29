@@ -56,10 +56,17 @@ server.post('/login',async(req,res)=>{
     return res.render('Registration/Login', { error: 'No Such User exists' });
 })
 
+server.get('/logout',(req,res)=>{
+    currentUserName='';
+    res.redirect('/');
+})
+
 server.get('/friendRequests',async(req,res)=>{
     const currentUser=await Users.findOne({username:currentUserName});
+    const suggestedFriendsListArray=currentUser.friends;
+    suggestedFriendsListArray.push(currentUser.username);
     const friendsList=await Users.find({username : {$in : currentUser.friends}});
-    const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
+    const suggestedFriendsList=await Users.find({username : {$nin : suggestedFriendsListArray }});
     res.render('friendRequests.ejs',{friendsList,suggestedFriendsList});
 })
 
