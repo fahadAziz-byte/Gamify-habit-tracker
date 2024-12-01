@@ -1,8 +1,14 @@
 const mongoose=require('mongoose');
 
 let requestSchema=mongoose.Schema({
-    senderUsername:String,
-    receiverUsername:String,
+    senderUsername:{
+        type:String,
+        required:true
+    },
+    receiverUsername:{
+        type:String,
+        required:true
+    },
     Date:{
         type:Date,
         default:Date.now()
@@ -11,4 +17,4 @@ let requestSchema=mongoose.Schema({
 
 let requests=mongoose.model("Requests",requestSchema);
 
-module.exports={requests};
+module.exports=requests;

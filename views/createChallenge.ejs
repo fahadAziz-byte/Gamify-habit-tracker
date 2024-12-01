@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Challenge</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">Habitify</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/viewChallenges">View Challenges</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/leaderboard">Leaderboard</a></li>
+                    <li class="nav-item"><a class="btn btn-warning" href="/logout">Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Create Challenge Form -->
+    <div class="form-container">
+        <h2 class="form-header">Create a New Challenge</h2>
+        <form action="/createChallenge" method="post">
+            <div class="mb-3">
+                <label for="title" class="form-label">Challenge Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="startDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="endDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="difficulty" class="form-label">Difficulty Level</label>
+                <select class="form-select" id="difficulty" name="difficulty" required>
+                    <option value="">Select Difficulty</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Fitness">Fitness</option>
+                    <option value="Productivity">Productivity</option>
+                    <option value="Learning">Learning</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="targetGoal" class="form-label">Target Goal</label>
+                <input type="number" class="form-control" id="targetGoal" name="targetGoal" required>
+            </div>
+            <div class="mb-3">
+                <label for="points" class="form-label">Points/Rewards</label>
+                <input type="number" class="form-control" id="points" name="points" required>
+            </div>
+            <div class="mb-3">
+                <label for="participants" class="form-label">Participants</label>
+                <select class="form-select" id="participants" name="participants" multiple required>
+                    <!-- Dynamically render friend options -->
+                    <%participants.forEach(participant => { %>
+                        <option value="<%= participant.username %>"><%= participant.username %></option>
+                    <% }); %>
+                </select>
+                <small class="text-muted">Hold Ctrl (Cmd on Mac) to select multiple participants.</small>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Create Challenge</button>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Habitify. All Rights Reserved.</p>
+            <div class="footer-links">
+                <a href="/viewChallenges">View Challenges</a>
+                <a href="/leaderboard">Leaderboard</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

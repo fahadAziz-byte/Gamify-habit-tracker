@@ -66,6 +66,32 @@
         <a href="/get-started" class="btn btn-primary">Get Started</a>
     </div>
 
+    <!-- Friends Requests Section -->
+    <section id="friends" class="container-section">
+        <div class="container">
+            <h2 class="text-center mb-4">Friend Requests</h2>
+            <div class="row">
+                <% for (let index = 0; index < requests.length; index++) { %>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= requests[index].senderUsername %></h5>
+                                <% if (requests[index].senderUsername && requests[index].receiverUsername) { %>
+                                    <a href="/confirmRequests/<%= requests[index].senderUsername %>/<%= requests[index].receiverUsername %>" class="btn btn-primary">Confirm</a>
+                                    <a href="/deleteRequest/<%= requests[index].senderUsername %>/<%= requests[index].receiverUsername %>" class="btn btn-warning">Delete</a>
+                                <% } else { %>
+                                    <p>Invalid request data</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+            <hr>
+        </div>
+    </section>
+
     <!-- Friends List Section -->
     <section id="friends" class="container-section">
         <div class="container">
@@ -93,17 +119,23 @@
             <h2 class="text-center mb-4">Suggested Friends</h2>
             <div class="row">
                 <% for (let index = 0; index < suggestedFriendsList.length; index++) { %>
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= suggestedFriendsList[index].username %></h5>
-                                <p class="card-text"><%= suggestedFriendsList[index].email %></p>
-                                <p class="card-text">Phone: <%= suggestedFriendsList[index].phonenumber %></p>
-                                <a href="#" class="btn btn-primary">Add Friend</a>
+                    <% if(!(suggestedFriendsList[index].username === currentUser.username)){ %>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= suggestedFriendsList[index].username %></h5>
+                                    <p class="card-text"><%= suggestedFriendsList[index].email %></p>
+                                    <p class="card-text">Phone: <%= suggestedFriendsList[index].phonenumber %></p>
+                                    <% if(sentRequests.find((element)=>element.receiverUsername === suggestedFriendsList[index].username)){ %>
+                                        <a href="" class="btn btn-light" style="border: 3px solid rgb(61, 61, 198)">Request Sent</a>
+                                    <% } else {%>
+                                        <a href="/addFriend/<%= suggestedFriendsList[index].username %>/<%= currentUser.username %>" class="btn btn-primary">Add Friend</a>
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <% } %>
                 <% } %>
             </div>
         </div>
