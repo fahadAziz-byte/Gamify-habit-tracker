@@ -12,21 +12,8 @@ server.get('/',(req,res)=>{
     res.render('Registration/login');
 })
 
-server.post('/Homepage',async(req,res)=>{
-    // Assuming Users is your model
-    console.log('hello in server post request');
-    const user = await Users.findOne({ username: currentUserName });
-    console.log('hello in server post request with user : '+user.username);
-    if (!user) {
-        console.error(`User with username ${currentUserName} not found`);
-        return res.redirect('/');; // Or handle it in another way (e.g., send a response or log)
-    }
-
-    // Safely push to the friends array
-    user.friends.push(req.body.userage);
-    user.age=req.body.userage;
-    await user.save()
-    return res.render('Homepage');
+server.get('/home',(req,res)=>{
+    res.render('Homepage');
 })
 
 server.post('/signup',async(req,res)=>{
@@ -39,6 +26,7 @@ server.post('/signup',async(req,res)=>{
             return res.render('Registration/Login', { error: 'User already exists' });
         }
         await newUser.save();
+        currentUserName=newUser.username;
         return res.render('Homepage');
     } catch (error) {
         console.error("Error occurred:", error);
@@ -65,9 +53,15 @@ server.get('/friendRequests',async(req,res)=>{
     const sentRequests=await Requests.find({senderUsername : currentUserName});
     const requests=await Requests.find({receiverUsername : currentUserName});
     const currentUser=await Users.findOne({username:currentUserName});
-    const friendsList=await Users.find({username : {$in : currentUser.friends}});
-    const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
-    res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,currentUser,requests,sentRequests});
+    try{
+        const friendsList=await Users.find({username : {$in : currentUser.friends}});
+        const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
+        res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,currentUser,requests,sentRequests});
+    }catch(err){
+        const suggestedFriendsList=await Users.find();
+        res.render('friendRequests.ejs',{suggestedFriendsList,currentUser,requests,sentRequests});
+    }
+    
 })
 
 server.get('/addFriend/:username/:currusername',async(req,res)=>{

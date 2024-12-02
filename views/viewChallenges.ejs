@@ -68,12 +68,14 @@
     <div class="container">
         <h1>My Challenges</h1>
         <% if (challenges.length === 0) { %>
-            <p style="text-align:center; font-size:1.2rem; color: #555;">--- You have completed challenges ! ---</p>
+            <p style="text-align:center; font-size:1.2rem; color: #555;">--- You have no challenges received yet ! ---</p>
         <% } else { %>
             <% challenges.forEach(challenge => { 
                 // Check if the challenge status is "pending"
                 const participant = challenge.participants.find(p => p.username === currentUserName);
-                if (participant && participant.status === "accepted") {
+                if(participant.status=="completed"){ %>
+                    <p style="text-align:center; font-size:1.2rem; color: #555;">--- You have completed all the challenges ! ---</p>
+                <% }else if (participant && participant.status === "accepted") {
                     const startDate = new Date(challenge.startDate);
                     const endDate = new Date(challenge.endDate);
                     const now = new Date();

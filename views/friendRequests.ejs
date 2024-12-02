@@ -44,7 +44,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="#">Habitify</a>
+            <a class="navbar-brand" href="/home">Habitify</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -97,18 +97,20 @@
         <div class="container">
             <h2 class="text-center mb-4">Your Friends</h2>
             <div class="row">
-                <% for (let index = 0; index < friendsList.length; index++) { %>
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= friendsList[index].username %></h5>
-                                <p class="card-text"><%= friendsList[index].email %></p>
-                                <p class="card-text">Phone: <%= friendsList[index].phonenumber %></p>
+                <% if(locals.friendsList){ %>
+                    <% for (let index = 0; index < friendsList.length; index++) { %>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= friendsList[index].username %></h5>
+                                    <p class="card-text"><%= friendsList[index].email %></p>
+                                    <p class="card-text">Phone: <%= friendsList[index].phonenumber %></p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <% } %>
+                    <% } %>
+                    <% } %>
             </div>
         </div>
     </section>
@@ -119,7 +121,7 @@
             <h2 class="text-center mb-4">Suggested Friends</h2>
             <div class="row">
                 <% for (let index = 0; index < suggestedFriendsList.length; index++) { %>
-                    <% if(!(suggestedFriendsList[index].username === currentUser.username)){ %>
+                    <% if(!(suggestedFriendsList[index].username === currentUser.username || requests.find((requestSender)=>requestSender.senderUsername === suggestedFriendsList[index].username))){ %>
                         <div class="col-md-4 mb-3">
                             <div class="card">
                                 <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
