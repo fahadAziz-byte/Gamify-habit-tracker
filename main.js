@@ -6,6 +6,7 @@ const Users=require('../Gamify-habit-tracker/models/usersModel');
 const Requests=require('../Gamify-habit-tracker/models/friendRequest');
 const Challenges=require('../Gamify-habit-tracker/models/challenges');
 const mongoose = require('mongoose');
+server.use(express.static('public'));
 let currentUserName='';
 
 server.get('/',(req,res)=>{

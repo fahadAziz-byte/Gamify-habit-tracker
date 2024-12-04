@@ -63,7 +63,7 @@
     <div class="hero">
         <h1>Welcome to Habitify</h1>
         <p>Track your habits, challenge your friends, and achieve more together.</p>
-        <a href="/get-started" class="btn btn-primary">Get Started</a>
+        <a href="/getStarted" class="btn btn-primary">Get Started</a>
     </div>
 
     <!-- Friends Requests Section -->
@@ -74,7 +74,11 @@
                 <% for (let index = 0; index < requests.length; index++) { %>
                     <div class="col-md-4 mb-3">
                         <div class="card">
-                            <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
+                            <% if(requests[index].senderUsername=='jibran'){ %>
+                                <img src="/images/alien-2-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                            <% }else{ %>
+                                <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                            <% } %>
                             <div class="card-body">
                                 <h5 class="card-title"><%= requests[index].senderUsername %></h5>
                                 <% if (requests[index].senderUsername && requests[index].receiverUsername) { %>
@@ -101,7 +105,11 @@
                     <% for (let index = 0; index < friendsList.length; index++) { %>
                         <div class="col-md-4 mb-3">
                             <div class="card">
-                                <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
+                                <% if(friendsList[index].username=='jibran'){ %>
+                                    <img src="/images/alien-2-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                                <% }else{ %>
+                                    <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                                <% } %>
                                 <div class="card-body">
                                     <h5 class="card-title"><%= friendsList[index].username %></h5>
                                     <p class="card-text"><%= friendsList[index].email %></p>
@@ -124,7 +132,11 @@
                     <% if(!(suggestedFriendsList[index].username === currentUser.username || requests.find((requestSender)=>requestSender.senderUsername === suggestedFriendsList[index].username))){ %>
                         <div class="col-md-4 mb-3">
                             <div class="card">
-                                <img src="/images/placeholder.svg" class="card-img-top" alt="Friend's Picture">
+                                <% if(suggestedFriendsList[index].username=='jibran'){ %>
+                                    <img src="/images/alien-2-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                                <% }else{ %>
+                                    <img src="/images/friend-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                                <% } %>
                                 <div class="card-body">
                                     <h5 class="card-title"><%= suggestedFriendsList[index].username %></h5>
                                     <p class="card-text"><%= suggestedFriendsList[index].email %></p>
