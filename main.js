@@ -5,6 +5,7 @@ server.use(express.urlencoded({extended : true}));
 const Users=require('../Gamify-habit-tracker/models/usersModel');
 const Requests=require('../Gamify-habit-tracker/models/friendRequest');
 const Challenges=require('../Gamify-habit-tracker/models/challenges');
+const Habit= require('../Gamify-habit-tracker/models/habits');
 const mongoose = require('mongoose');
 server.use(express.static('public'));
 let currentUserName='';
@@ -152,6 +153,10 @@ server.post('/createChallenge', async (req, res) => {
     }
 });
 
+server.get('/Challenges',(req,res)=>{
+    res.render('Challenges');
+})
+
 
 server.get('/challengeRequests', async (req, res) => {
     const currentUser = await Users.findOne({ username: currentUserName });
@@ -211,6 +216,61 @@ server.post('/completeChallenge', async (req, res) => {
         res.status(500).send("Failed to complete challenge.");
     }
 });
+
+server.get('/habits', async (req, res) => {
+    const today = new Date().toISOString().split('T')[0];
+    console.log(today);
+    const habits = await Habit.find({ username : currentUserName});
+
+    const dueHabits = habits.filter(habit => habit.isCompletedToday!=true );
+    const completedHabits = habits.filter(habit => habit.isCompletedToday ==true);
+
+    res.render('habits/habits', { dueHabits, completedHabits });
+});
+
+server.get("/createHabit",(req,res)=>{
+    res.render("habits/createHabit");
+})
+
+server.post("/createHabit",async(req,res)=>{
+    let data=req.body;
+    let newHabit=new Habit(data);
+    await newHabit.save();
+    res.redirect('/habits');
+})
+
+server.post("/checkInHabit", async (req, res) => {
+    try {
+        const reqId= req.body._id;
+        const result = await Habit.updateOne(
+            { _id: reqId }, 
+            {
+                $set: {
+                    isCompletedToday: true,
+                    lastCheckIn: new Date().toISOString(),
+                },
+                $inc: {
+                    streak: 1,
+                }
+            }
+        );
+        if (result.modifiedCount === 0) {
+            return res.status(404).send("Habit not found or already up to date.");
+        }
+
+        res.redirect('/habits'); 
+    } catch (error) {
+        console.error("Error updating habit:", error);
+        res.status(500).send("An error occurred while updating the habit.");
+    }
+});
+
+server.get('/removeHabit/:_id',async(req,res)=>{
+    await Habit.deleteOne({ _id: req.params._id});
+    res.redirect('/habits');
+})
+
+
 
 
 

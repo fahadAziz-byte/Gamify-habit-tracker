@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Habit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input, textarea, button {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Create New Habit</h1>
+        <form action="/createHabit" method="POST">
+            <label for="userId">User_Name:</label>
+            <input type="text" name="username" id="username" placeholder="Enter User Name" required>
+
+            <label for="title">Habit Title:</label>
+            <input type="text" name="title" id="title" placeholder="Enter Habit Title" required>
+
+            <label for="description">Habit Description:</label>
+            <textarea name="description" id="description" placeholder="Enter Habit Description" rows="4"></textarea>
+
+            <button type="submit">Create Habit</button>
+        </form>
+    </div>
+
+</body>
+</html>

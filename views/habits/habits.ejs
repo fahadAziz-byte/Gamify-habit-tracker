@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Habits</title>
+    <style>
+        .container {
+            width: 90%;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+        .habit-card {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background-color: #fbbea9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .habit-card.completed {
+            background-color: #d4edda; /* Green shade for completed habits */
+        }
+        .habit-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .btn-checkin {
+            padding: 0.5rem 1rem;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-checkin:hover {
+            background-color: #218838;
+        }
+        .btn-settings {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .settings-menu {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .settings-menu a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #333;
+            text-decoration: none;
+        }
+        .settings-menu a:hover {
+            background-color: #f1f1f1;
+        }
+        .new-habit {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .btn-new-habit {
+            display: inline-block;
+            padding: 0.7rem 1.5rem;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .btn-new-habit:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+    <!-- Include Header -->
+    <%- include('../../views/partials/header') %>
+
+    <main class="container">
+        <h1>My Habits</h1>
+
+        <section>
+            <h2>Due Habits</h2>
+            <% if (dueHabits.length === 0) { %>
+                <p>No due habits for today!</p>
+            <% } else { %>
+                <% dueHabits.forEach(habit => { %>
+                    <div class="habit-card">
+                        <h3><%= habit.title %></h3>
+                        <p><%= habit.description %></p>
+                        <p>Streak: <%= habit.streak %> days</p>
+                        <div class="habit-actions">
+                            <form action="/checkInHabit" method="post">
+                                <input type="hidden" name="_id" value="<%= habit._id %>">
+                                <button type="submit" class="btn-checkin">Check In</button>
+                            </form>
+                            <button type='button' class="btn btn-danger"><a style='color: #f1f1f1;' href="/removeHabit/<%= habit._id%>">Remove Habit</a></button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </section>
+
+        <section>
+            <h2>Completed Habits</h2>
+            <% if (completedHabits.length === 0) { %>
+                <p>No habits completed today!</p>
+            <% } else { %>
+                <% completedHabits.forEach(habit => { %>
+                    <div class="habit-card completed" >
+                        <h3><%= habit.title %></h3>
+                        <p><%= habit.description %></p>
+                        <p>Streak: <%= habit.streak %> days</p>
+                        
+                        <button type='button' class="btn btn-danger"><a style='color: #f1f1f1;'href="/removeHabit/<%= habit._id %>">Remove Habit</a></button>
+                    </div>
+                <% }); %>
+            <% } %>
+        </section>
+
+        <div class="new-habit">
+            <a href="/createHabit" class="btn-new-habit">+ Create New Habit</a>
+        </div>
+    </main>
+
+    <!-- Include Footer -->
+    <%- include('../../views/partials/footer') %>
+</body>
+</html>
