@@ -6,9 +6,74 @@ const Users=require('../Gamify-habit-tracker/models/usersModel');
 const Requests=require('../Gamify-habit-tracker/models/friendRequest');
 const Challenges=require('../Gamify-habit-tracker/models/challenges');
 const Habit= require('../Gamify-habit-tracker/models/habits');
+const DailyStreaks = require('../Gamify-habit-tracker/models/dailyStreaks');
+const Leaderboard=require('../Gamify-habit-tracker/models/leaderboard');
 const mongoose = require('mongoose');
 server.use(express.static('public'));
 let currentUserName='';
+
+async function performDailyUpdates() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        await Habit.updateMany(
+            { isCompletedToday: true },
+            {
+                $set: {
+                    isCompletedToday: false,
+                },
+            }
+        );
+
+        await Habit.updateMany(
+            { lastCheckIn: { $lt: yesterday.toISOString() } },
+            {
+                $set: {
+                    streak: 0,
+                },
+            }
+        );
+
+        console.log("Daily updates performed successfully.");
+    } catch (error) {
+        console.error("Error performing daily updates:", error);
+    }
+}
+
+
+async function checkAndPerformDailyUpdates() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let streakData = await DailyStreaks.findOne();
+
+        if (!streakData) {
+            streakData = new DailyStreaks({ lastUpdateDate: new Date(0) });
+            await streakData.save();
+        }
+
+        const lastUpdateDate = new Date(streakData.lastUpdateDate);
+
+        if (lastUpdateDate.getTime() !== today.getTime()) {
+            await performDailyUpdates();
+
+            streakData.lastUpdateDate = today;
+            await streakData.save();
+        }
+        else{
+            console.log('Already performed updates today')
+        }
+    } catch (error) {
+        console.error("Error during daily updates check:", error);
+    }
+}
+
+checkAndPerformDailyUpdates();
 
 server.get('/',(req,res)=>{
     res.render('Registration/login');
@@ -186,7 +251,6 @@ server.post('/declineChallenge/:id', async (req, res) => {
     res.redirect('/challengeRequests');
 });
 
-// GET /viewChallenges - Displays challenges accepted by the current user
 server.get('/viewChallenges', async (req, res) => {
     try {
 
@@ -201,21 +265,47 @@ server.get('/viewChallenges', async (req, res) => {
     }
 });
 
-server.post('/completeChallenge', async (req, res) => {
+server.post("/completeChallenge", async (req, res) => {
     try {
-        const { challengeId } = req.body;
-        
+        const challengeId= req.body.challengeId;
+        const bonusPoints = Number(req.body.points);
+        console.log(bonusPoints);
         await Challenges.updateOne(
             { _id: challengeId, "participants.username": currentUserName },
             { $set: { "participants.$.status": "completed" } }
         );
 
-        res.redirect('/viewChallenges');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Failed to complete challenge.");
+        const requsername = currentUserName;
+
+        const leaderboardResult=await Leaderboard.findOneAndUpdate(
+            { username: requsername },
+            { $inc: { points: bonusPoints } },
+            { upsert: true, new: true }
+        );
+
+        if (leaderboardResult.points >= leaderboardResult.level *100){
+            await Leaderboard.updateOne({username:currentUserName},{ $inc:{level: 1}});
+        }
+
+        console.log("Challenge completed! Bonus points added.");
+        res.render('viewChallenges')
+    } catch (error) {
+        console.error("Error updating leaderboard for challenge:", error);
+        res.status(500).send("An error occurred while completing the challenge.");
     }
 });
+
+
+server.get("/leaderboard", async (req, res) => {
+    try {
+        const leaderboard = await Leaderboard.find().sort({ points: -1 }).limit(10);
+        res.render("leaderboard", { leaderboard });
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        res.status(500).send("Error loading leaderboard.");
+    }
+});
+
 
 server.get('/habits', async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
@@ -233,37 +323,50 @@ server.get("/createHabit",(req,res)=>{
 })
 
 server.post("/createHabit",async(req,res)=>{
-    let data=req.body;
-    let newHabit=new Habit(data);
-    await newHabit.save();
-    res.redirect('/habits');
-})
+    if(req.body.username===currentUserName){
+        let data=req.body;
+        let newHabit=new Habit(data);
+        await newHabit.save();
+        res.redirect('/habits');
+    }else{
+        res.send('You cannot add habits for other user');
+    }
+});
 
 server.post("/checkInHabit", async (req, res) => {
     try {
-        const reqId= req.body._id;
-        const result = await Habit.updateOne(
-            { _id: reqId }, 
+        
+        const habitResult = await Habit.updateOne(
+            { _id: req.body._id, isCompletedToday: false },
             {
                 $set: {
                     isCompletedToday: true,
                     lastCheckIn: new Date().toISOString(),
                 },
-                $inc: {
-                    streak: 1,
-                }
+                $inc: { streak: 1 },
             }
         );
-        if (result.modifiedCount === 0) {
-            return res.status(404).send("Habit not found or already up to date.");
+
+        if (habitResult.modifiedCount === 0) {
+            return res.status(404).send("Habit not found or already checked in.");
+        }
+        const pointsToAdd = 5;
+        const leaderboardResult = await Leaderboard.findOneAndUpdate(
+            { username: currentUserName },
+            { $inc: { points: pointsToAdd } },
+            { upsert: true, new: true } 
+        );
+        if (leaderboardResult.points >= leaderboardResult.level *100){
+            await Leaderboard.updateOne({username:currentUserName},{ $inc:{level: 1}});
         }
 
-        res.redirect('/habits'); 
+        res.redirect('/habits');
     } catch (error) {
-        console.error("Error updating habit:", error);
-        res.status(500).send("An error occurred while updating the habit.");
+        console.error("Error updating habit and leaderboard:", error);
+        res.status(500).send("An error occurred while checking in the habit.");
     }
 });
+
 
 server.get('/removeHabit/:_id',async(req,res)=>{
     await Habit.deleteOne({ _id: req.params._id});

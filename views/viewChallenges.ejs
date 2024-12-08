@@ -70,12 +70,14 @@
         <% if (challenges.length === 0) { %>
             <p style="text-align:center; font-size:1.2rem; color: #555;">--- You have no challenges received yet ! ---</p>
         <% } else { %>
-            <% challenges.forEach(challenge => { 
+            <% 
+                let counter=0;
+                challenges.forEach(challenge => { 
                 // Check if the challenge status is "pending"
                 const participant = challenge.participants.find(p => p.username === currentUserName);
-                if(participant.status=="completed"){ %>
-                    <p style="text-align:center; font-size:1.2rem; color: #555;">--- You have completed all the challenges ! ---</p>
-                <% }else if (participant && participant.status === "accepted") {
+                if(participant.status=="completed"){ 
+                    counter++;
+                }else if (participant && participant.status === "accepted") {
                     const startDate = new Date(challenge.startDate);
                     const endDate = new Date(challenge.endDate);
                     const now = new Date();
@@ -101,17 +103,22 @@
                 <div class="challenge-card <%= durationClass %>">
                     <div class="card-title"><%= challenge.title %></div>
                     <div class="card-description"><%= challenge.description %></div>
+                    <div class="card-description"><%= challenge.points %> pts</div>
                     <div class="card-footer">
                         <span>Challenged by: <%= challenge.creator %></span>
                         <span>Ends on: <%= new Date(challenge.endDate).toLocaleDateString() %></span>
                         <form action="/completeChallenge" method="POST" style="margin:0;">
                             <input type="hidden" name="challengeId" value="<%= challenge._id %>">
+                            <input type="hidden" name="points" value="<%= challenge.points %>">
                             <button type="submit" class="btn-complete">Complete Challenge</button>
                         </form>
                     </div>
                 </div>
             <% 
-                } // End of status check 
+                }
+                if(counter===challenges.length){ %>
+                    <p style="text-align:center; font-size:1.2rem; color: #555;">--- You have completed all the challenges ! ---</p>
+                <% }
             }); %>
         <% } %>
     </div>

@@ -24,7 +24,7 @@
                     <h3><%= challenge.title %></h3>
                     <p><strong>Description:</strong> <%= challenge.description %></p>
                     <p><strong>Creator:</strong> <%= challenge.creator %></p>
-                    <p><strong>Reward:</strong> <%= challenge.reward %></p>
+                    <p><strong>Reward:</strong> <%= challenge.points %> pts</p>
                     <p><strong>Duration:</strong> <%= challenge.duration %> days</p>
                     <form action="/acceptChallenge/<%= challenge._id %>" method="POST" style="display: inline;">
                         <button type="submit" class="btn btn-success">Accept</button>
