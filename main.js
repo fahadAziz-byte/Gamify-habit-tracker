@@ -288,7 +288,7 @@ server.post("/completeChallenge", async (req, res) => {
         }
 
         console.log("Challenge completed! Bonus points added.");
-        res.render('viewChallenges')
+        res.redirect('/viewChallenges')
     } catch (error) {
         console.error("Error updating leaderboard for challenge:", error);
         res.status(500).send("An error occurred while completing the challenge.");

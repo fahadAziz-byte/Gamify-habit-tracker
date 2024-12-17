@@ -3,146 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamified Habit Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Habitify - Level Up Your Habits</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #ff69b4;
+            --text-color: #333;
+            --bg-color: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-        .hero-section {
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
             color: white;
-            padding: 100px 0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
             text-align: center;
+            padding: 100px 0;
+            margin-top: 80px;
         }
-        .features-section {
-            background-color: #f9f9f9;
-            padding: 50px 0;
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
         }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            padding: 80px 0;
+            background-color: var(--bg-color);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            color: var(--primary-color);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
         .feature-card {
-            background: white;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            transition: transform 0.3s;
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
+
         .feature-card:hover {
             transform: translateY(-10px);
         }
-        .testimonial {
-            margin: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
         }
-        footer {
-            background-color: #333;
-            color: white;
-            padding: 20px 0;
+
+        .testimonials {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 80px 0;
+        }
+
+        .testimonials h2 {
             text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            color: var(--primary-color);
         }
-        .footer-links a {
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        footer a {
             color: white;
             text-decoration: none;
             margin: 0 10px;
         }
-        .footer-links a:hover {
-            text-decoration: underline;
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="/home">Habitify</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/friendRequests">Friend Requests</a></li>
-                    <li class="nav-item"><a class="btn btn-warning" href="/logout">Log Out</a></li>
-                </ul>
+    <header>
+        <nav class="container">
+            <a href="/home" class="logo">Habitify</a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#about">About Us</a>
+                <a href="/friendRequests">Friend Requests</a>
+                <a href="/logout" class="btn">Log Out</a>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <h1>Level Up Your Habits</h1>
-            <p>Track, improve, and gamify your daily habits effortlessly!</p>
-            <a href="/getStarted" class="btn btn-light btn-lg">Get Started</a>
-        </div>
-    </section>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Level Up Your Habits</h1>
+                <p>Track, improve, and gamify your daily habits effortlessly!</p>
+                <a href="/getStarted" class="btn">Get Started</a>
+            </div>
+        </section>
 
-    
-
-    <!-- Features Section -->
-    <section id="features" class="features-section">
-        <div class="container text-center">
-            <h2>Our Features</h2>
-            <p>Designed to keep you motivated and on track.</p>
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <h4>Gamification</h4>
-                        <p>Earn XP, unlock achievements, and level up as you complete habits!</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <h4>Progress Analytics</h4>
-                        <p>Track your streaks and analyze your performance over time.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <h4>Reminders</h4>
-                        <p>Set reminders to ensure you never miss a habit again.</p>
-                    </div>
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Our Features</h2>
+                <div class="feature-grid">
+                    <a href="/Challenges" style="text-decoration: none;">
+                        <div class="feature-card">
+                            <div class="feature-icon">🏆</div>
+                            <h3>Gamification</h3>
+                            <p>Earn XP, unlock achievements, and level up as you complete habits!</p>
+                        </div>
+                    </a>
+                    <a href="/leaderboard" style="text-decoration: none;">
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h3>Progress Analytics</h3>
+                            <p>Track your streaks and analyze your performance over time.</p>
+                        </div>
+                    </a>
+                    <a href="/habits" style="text-decoration: none;">
+                        <div class="feature-card">
+                            <div class="feature-icon">🔔</div>
+                            <h3>Reminders</h3>
+                            <p>Set reminders to ensure you never miss a habit again.</p>
+                        </div>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="py-5">
-        <div class="container text-center">
-            <h2>What Our Users Say</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="testimonial">
-                        <p>"This app completely changed my life. I'm finally consistent!"</p>
-                        <strong>- Sarah</strong>
+        <section id="testimonials" class="testimonials">
+            <div class="container">
+                <h2>What Our Users Say</h2>
+                <div class="testimonial-grid">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"This app completely changed my life. I'm finally consistent!"</p>
+                        <p class="testimonial-author">- Sarah</p>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="testimonial">
-                        <p>"The gamification features are so fun and keep me motivated!"</p>
-                        <strong>- Mike</strong>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"The gamification features are so fun and keep me motivated!"</p>
+                        <p class="testimonial-author">- Mike</p>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="testimonial">
-                        <p>"The analytics feature helps me stay accountable every day."</p>
-                        <strong>- Emily</strong>
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"The analytics feature helps me stay accountable every day."</p>
+                        <p class="testimonial-author">- Emily</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <p>&copy; 2024 Habitify. All Rights Reserved.</p>
-            <div class="footer-links">
+            <div>
                 <a href="#features">Features</a>
                 <a href="#about">About</a>
                 <a href="#testimonials">Testimonials</a>
@@ -150,10 +287,39 @@
         </div>
     </footer>
 
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add animation to feature cards on scroll
+        const featureCards = document.querySelectorAll('.feature-card');
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        featureCards.forEach(card => {
+            card.style.opacity = 0;
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
     </script>
 </body>
 </html>
+

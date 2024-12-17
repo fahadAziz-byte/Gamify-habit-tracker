@@ -80,13 +80,34 @@
                                 <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                             <% } %>
                             <div class="card-body">
-                                <h5 class="card-title"><%= requests[index].senderUsername %></h5>
+                                <h5 class="card-title">
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#userModal<%= index %>">
+                                        <%= requests[index].senderUsername %>
+                                    </a>
+                                </h5>
                                 <% if (requests[index].senderUsername && requests[index].receiverUsername) { %>
                                     <a href="/confirmRequests/<%= requests[index].senderUsername %>/<%= requests[index].receiverUsername %>" class="btn btn-primary">Confirm</a>
                                     <a href="/deleteRequest/<%= requests[index].senderUsername %>/<%= requests[index].receiverUsername %>" class="btn btn-warning">Delete</a>
                                 <% } else { %>
                                     <p>Invalid request data</p>
                                 <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal for Friend Request -->
+                    <div class="modal fade" id="userModal<%= index %>" tabindex="-1" aria-labelledby="userModalLabel<%= index %>" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="userModalLabel<%= index %>">User Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Username:</strong> <%= requests[index].senderUsername %></p>
+                                    <p><strong>Email:</strong> <%= requests[index].senderEmail %></p>
+                                    <p><strong>Phone:</strong> <%= requests[index].senderPhone %></p>
+                                    <p><strong>Age:</strong> <%= requests[index].senderAge %></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -111,14 +132,35 @@
                                     <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                                 <% } %>
                                 <div class="card-body">
-                                    <h5 class="card-title"><%= friendsList[index].username %></h5>
+                                    <h5 class="card-title">
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#friendModal<%= index %>">
+                                            <%= friendsList[index].username %>
+                                        </a>
+                                    </h5>
                                     <p class="card-text"><%= friendsList[index].email %></p>
                                     <p class="card-text">Phone: <%= friendsList[index].phonenumber %></p>
                                 </div>
                             </div>
                         </div>
+                        <!-- Modal for Friend -->
+                        <div class="modal fade" id="friendModal<%= index %>" tabindex="-1" aria-labelledby="friendModalLabel<%= index %>" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="friendModalLabel<%= index %>">Friend Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Username:</strong> <%= friendsList[index].username %></p>
+                                        <p><strong>Email:</strong> <%= friendsList[index].email %></p>
+                                        <p><strong>Phone:</strong> <%= friendsList[index].phonenumber %></p>
+                                        <p><strong>Age:</strong> <%= friendsList[index].age %></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <% } %>
-                    <% } %>
+                <% } %>
             </div>
         </div>
     </section>
@@ -138,7 +180,11 @@
                                     <img src="/images/friend-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                                 <% } %>
                                 <div class="card-body">
-                                    <h5 class="card-title"><%= suggestedFriendsList[index].username %></h5>
+                                    <h5 class="card-title">
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#suggestedModal<%= index %>">
+                                            <%= suggestedFriendsList[index].username %>
+                                        </a>
+                                    </h5>
                                     <p class="card-text"><%= suggestedFriendsList[index].email %></p>
                                     <p class="card-text">Phone: <%= suggestedFriendsList[index].phonenumber %></p>
                                     <% if(sentRequests.find((element)=>element.receiverUsername === suggestedFriendsList[index].username)){ %>
@@ -146,6 +192,23 @@
                                     <% } else {%>
                                         <a href="/addFriend/<%= suggestedFriendsList[index].username %>/<%= currentUser.username %>" class="btn btn-primary">Add Friend</a>
                                     <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal for Suggested Friend -->
+                        <div class="modal fade" id="suggestedModal<%= index %>" tabindex="-1" aria-labelledby="suggestedModalLabel<%= index %>" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="suggestedModalLabel<%= index %>">Suggested Friend Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Username:</strong> <%= suggestedFriendsList[index].username %></p>
+                                        <p><strong>Email:</strong> <%= suggestedFriendsList[index].email %></p>
+                                        <p><strong>Phone:</strong> <%= suggestedFriendsList[index].phonenumber %></p>
+                                        <p><strong>Age:</strong> <%= suggestedFriendsList[index].age %></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
