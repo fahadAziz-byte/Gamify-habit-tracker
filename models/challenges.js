@@ -14,7 +14,6 @@ const challengeSchema = mongoose.Schema({
     },
     difficulty: { type: String, enum: ["Easy", "Medium", "Hard"], required: true },
     category: { type: String, required: true },
-    targetGoal: { type: Number, required: true },
     points: { type: Number, required: true },
     participants: [{
         username: String,

@@ -204,7 +204,6 @@ server.post('/createChallenge', async (req, res) => {
             endDate,
             difficulty,
             category,
-            targetGoal,
             points,
             participants: formattedParticipants,
             creator
