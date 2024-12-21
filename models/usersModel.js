@@ -8,7 +8,7 @@ let usersSchema=mongoose.Schema({
     age:Number,
     friends:[String],
     habits:[String],
-    coins:{type:Number,default:0},
+    coins:{type:Number,default:15},
     inventory: [
         {
             potionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Potion' },
@@ -17,6 +17,10 @@ let usersSchema=mongoose.Schema({
             activatedAt: { type: Date },
         },
     ],
+    avatarId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Avatar',
+    },
 });
 
 let usersModel=mongoose.model('Users',usersSchema);

@@ -253,18 +253,21 @@
         </div>
         <div class="nav-right">
             <div class="currency">
-                <img src="/placeholder.svg?height=20&width=20" alt="Gold">
-                <span>100</span>
+                <span><%= user.coins %></span>🪙
             </div>
         </div>
     </nav>
 
     <section class="profile-section">
         <div class="avatar-frame">
-            <img src="/placeholder.svg?height=100&width=100" alt="Character Avatar">
+            <%if(userAvatar.imageURL){%>
+                <img src="/<%=userAvatar.imageURL%>" alt="Character Avatar">
+            <% }else{ %>
+                <img src="" alt="Character Avatar">
+            <% } %>
         </div>
         <div class="profile-info">
-            <h2>MALIK FAHAD AZIZ</h2>
+            <h2><%=user.username%></h2>
             <p>Level 1 Warrior</p>
         </div>
     </section>
@@ -275,31 +278,59 @@
 
     <main class="market-content">
         <div class="market-items">
-            <% const shopItems = [
-                { name: "Potion of Streak Recovery", description: "Restores 3 streaks", price: 20, image: "/placeholder.svg?height=100&width=100" },
-                { name: "Knight Helmet", description: "Customize your avatar", price: 50, image: "/placeholder.svg?height=100&width=100" },
-                { name: "Wizard Hat", description: "Customize your avatar", price: 40, image: "/placeholder.svg?height=100&width=100" },
-                { name: "Health Potion", description: "Restore full health", price: 10, image: "/placeholder.svg?height=100&width=100" }
-            ]; %>
 
-            <% shopItems.forEach(item => { %>
-                <div class="item-card">
-                    <img class="item-image" src="<%= item.image %>" alt="<%= item.name %>">
-                    <h3><%= item.name %></h3>
-                    <p><%= item.description %></p>
-                    <strong><%= item.price %> Gold</strong>
-                    <button class="buy-button" onclick="buyItem('<%= item.name %>')">Buy</button>
-                </div>
-            <% }); %>
+            <!-- views/shop.ejs -->
+            <h1>Shop</h1>
+            <div class="shop-items">
+                <% potions.forEach((potion) => { %>
+                    <div class="shop-item">
+                        <h3><%= potion.name %></h3>
+                        <p><%= potion.description %></p>
+                        <p>Effect: <%= potion.effectType %> for <%= potion.duration %> days</p>
+                        <p>Cost: <%= potion.cost %> coins</p>
+                        <form action="/shop/buy-potion/<%= potion._id %>" method="POST">
+                            <button type="submit" <% if (user.coins < potion.cost) { %> disabled <% } %> >Buy</button>
+                        </form>
+                    </div>
+                <% }); %>
+            </div>
+
+
+            <div class="market-items">
+                <% avatars.forEach(avatar => { 
+                    if(avatar._id===user.avatarId){ %>
+                        <div class="item-card">
+                            <img class="item-image" src="/<%= avatar.imageURL %>" alt="<%= avatar.name %>">
+                            <h3><%= avatar.name %></h3>
+                            <p><%= avatar.description %></p>
+                            <p>Cost: <%= avatar.cost %> coins</p>
+                            <form action="/shop/buy-avatar" method="POST">
+                                <input type="hidden" name="avatarId" value="<%= avatar._id %>">
+                                <button type="submit" disabled>Already Bought</button>
+                            </form>
+                        </div>
+                    <% }else{ %>
+
+                            <div class="item-card">
+                                <img class="item-image" src="<%= avatar.imageURL %>" alt="<%= avatar.name %>">
+                                <h3><%= avatar.name %></h3>
+                                <p><%= avatar.description %></p>
+                                <p>Cost: <%= avatar.cost %> coins</p>
+                                <form action="/shop/buy-avatar" method="POST">
+                                    <input type="hidden" name="avatarId" value="<%= avatar._id %>">
+                                    <button type="submit" <% if (user.coins < avatar.cost) { %> disabled <% } %> >Buy</button>
+                                </form>
+                            </div>
+
+                        <% }
+                 }); %>
+            </div>
+            
         </div>
     </main>
 
     <script>
-        function buyItem(itemName) {
-            alert(`You purchased ${itemName}!`);
-            // Optionally send a POST request to update the user's inventory
-            // fetch('/buy', { method: 'POST', body: JSON.stringify({ item: itemName }) });
-        }
+        
     </script>
 </body>
 </html>

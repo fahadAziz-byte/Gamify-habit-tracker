@@ -5,14 +5,28 @@ server.use(express.urlencoded({extended : true}));
 const Users=require('../Gamify-habit-tracker/models/usersModel');
 const Requests=require('../Gamify-habit-tracker/models/friendRequest');
 const Challenges=require('../Gamify-habit-tracker/models/challenges');
+const Potion=require('../Gamify-habit-tracker/models/Potion');
 const Habit= require('../Gamify-habit-tracker/models/habits');
+const Avatar=require('../Gamify-habit-tracker/models/avatar');
 const DailyStreaks = require('../Gamify-habit-tracker/models/dailyStreaks');
 const Leaderboard=require('../Gamify-habit-tracker/models/leaderboard');
 const { calculateCoinsForStreak } = require('./public/javascript/calculateCoins');
 const { calculatePoints } = require('./public/javascript/calculatePoints');
 const mongoose = require('mongoose');
 server.use(express.static('public'));
+server.use(express.static('uploads'));
 let currentUserName='';
+
+let multer = require("multer");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Directory to store files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`); // Unique file name
+  },
+});
+const upload = multer({ storage: storage });
 
 async function performDailyUpdates() {
     try {
@@ -81,13 +95,7 @@ server.get('/',(req,res)=>{
     res.render('Registration/login');
 })
 
-server.get('/shop', (req, res) => {
-    const shopItems = [
-        { name: "Potion of Streak Recovery", description: "Restores 3 streaks", price: 20, image: "/images/potion.png" },
-        { name: "Knight Helmet", description: "Customize your avatar", price: 50, image: "/images/knight-helmet.png" }
-    ];
-    res.render('shop', { shopItems });
-});
+
 
 
 server.get('/home',(req,res)=>{
@@ -393,8 +401,95 @@ server.get('/removeHabit/:_id',async(req,res)=>{
     res.redirect('/habits');
 })
 
+server.post('/shop/buy-avatar', async (req, res) => {
+    try {
+        const avatarId= req.body.avatarID;
+        const avatar = await Avatar.findOne({_id:avatarId});
+        const user = await Users.findOne({username:currentUserName}); // Assuming req.user contains authenticated user details
 
+        if (user.coins < avatar.cost) {
+            return res.status(400).send('Not enough coins to purchase this avatar.');
+        }
 
+        // Deduct coins and update the user's avatar
+        user.coins -= avatar.cost;
+        user.avatarId = avatarId;
+
+        await user.save();
+        res.redirect('/shop'); // Redirect back to shop after purchase
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+server.post('/shop/buy-potion/:potionId', async (req, res) => {
+    const { potionId } = req.params;
+
+    try {
+        const user = await Users.findOne({username:currentUserName}); // Assuming req.user contains authenticated user data
+        const potion = await Potion.findById(potionId);
+
+        if (!potion) return res.status(404).json({ message: 'Potion not found' });
+
+        // Check if user has enough coins
+        if (user.coins < potion.cost) {
+            return res.status(400).json({ message: 'Not enough coins to buy this potion' });
+        }
+
+        // Deduct coins
+        user.coins -= potion.cost;
+
+        // Add potion to user's inventory
+        if (!user.inventory)
+            user.inventory = [];
+
+        user.inventory.push({
+            potionId: potion._id,
+            effectType: potion.effectType,
+            duration: potion.duration,
+            activatedAt: null, // Set to null initially
+        });
+
+        await user.save();
+
+        res.redirect('/shop');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+server.get('/admin',async(req,res)=>{
+    const avatar=await Avatar.find();
+    res.render('admin/admin.ejs',{avatar})
+})
+
+server.get('/createAvatar',(req,res)=>{
+    res.render('admin/newAvatarForm.ejs');
+})
+
+server.post('/createAvatar',upload.single("file"),async (req, res) => {
+    let data = req.body;
+    let newAvatar= new Avatar(data);
+    if (req.file) {
+        newAvatar.imageURL = req.file.filename;
+    }
+    await newAvatar.save();
+    res.redirect('/admin');
+})
+
+server.get('/shop', async(req, res) => {
+    let avatars=await Avatar.find();
+    let potions=await Potion.find();
+    const user=await Users.findOne({username:currentUserName});
+    if(user.avatarID){
+        const userAvatar=await Avatar.findOne({_id:user.avatarId});
+        res.render('shop', { potions,avatars,user,userAvatar });
+    }else{
+        res.render('shop', { potions,avatars,user,userAvatar:{} });
+    }
+});
 
 
 server.listen(5000,()=>{
