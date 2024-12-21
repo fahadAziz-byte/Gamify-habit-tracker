@@ -79,6 +79,15 @@ server.get('/',(req,res)=>{
     res.render('Registration/login');
 })
 
+server.get('/shop', (req, res) => {
+    const shopItems = [
+        { name: "Potion of Streak Recovery", description: "Restores 3 streaks", price: 20, image: "/images/potion.png" },
+        { name: "Knight Helmet", description: "Customize your avatar", price: 50, image: "/images/knight-helmet.png" }
+    ];
+    res.render('shop', { shopItems });
+});
+
+
 server.get('/home',(req,res)=>{
     res.render('Homepage');
 })

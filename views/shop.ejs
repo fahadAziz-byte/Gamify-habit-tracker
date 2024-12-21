@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habitica Market</title>
+    <style>
+        :root {
+            --primary-purple: #4f2a93;
+            --dark-purple: #271B3D;
+            --light-purple: #6133b4;
+            --health-red: #f74e52;
+            --exp-yellow: #ffb445;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .main-nav {
+            background-color: var(--primary-purple);
+            padding: 0.8rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-left {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-left a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .nav-left a:hover {
+            opacity: 0.8;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .currency {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            background: linear-gradient(to right, var(--dark-purple), var(--light-purple));
+            color: white;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .avatar-frame {
+            width: 140px;
+            height: 140px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        /* Market Navigation */
+        .market-nav {
+            background-color: white;
+            padding: 0 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .market-nav a {
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: #4e4a57;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .market-nav a.active {
+            color: var(--primary-purple);
+        }
+
+        .market-nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-purple);
+        }
+
+        /* Market Content */
+        .market-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .market-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .item-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--light-purple);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            margin: 1rem auto;
+            object-fit: contain;
+        }
+
+        .item-card h3 {
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--dark-purple);
+        }
+
+        .item-card p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .item-card strong {
+            display: block;
+            color: var(--primary-purple);
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .buy-button {
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .buy-button:hover {
+            background-color: var(--light-purple);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-section {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .avatar-frame {
+                margin: 0 auto;
+            }
+
+            .market-content {
+                padding: 0 1rem;
+            }
+
+            .market-items {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .main-nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .nav-left {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-left">
+            <img src="/placeholder.svg?height=30&width=30" alt="Habitica Logo">
+            <a href="#">Tasks</a>
+            <a href="#">Inventory</a>
+            <a href="#">Shops</a>
+        </div>
+        <div class="nav-right">
+            <div class="currency">
+                <img src="/placeholder.svg?height=20&width=20" alt="Gold">
+                <span>100</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="profile-section">
+        <div class="avatar-frame">
+            <img src="/placeholder.svg?height=100&width=100" alt="Character Avatar">
+        </div>
+        <div class="profile-info">
+            <h2>MALIK FAHAD AZIZ</h2>
+            <p>Level 1 Warrior</p>
+        </div>
+    </section>
+
+    <nav class="market-nav">
+        <a href="#" class="active">Market</a>
+    </nav>
+
+    <main class="market-content">
+        <div class="market-items">
+            <% const shopItems = [
+                { name: "Potion of Streak Recovery", description: "Restores 3 streaks", price: 20, image: "/placeholder.svg?height=100&width=100" },
+                { name: "Knight Helmet", description: "Customize your avatar", price: 50, image: "/placeholder.svg?height=100&width=100" },
+                { name: "Wizard Hat", description: "Customize your avatar", price: 40, image: "/placeholder.svg?height=100&width=100" },
+                { name: "Health Potion", description: "Restore full health", price: 10, image: "/placeholder.svg?height=100&width=100" }
+            ]; %>
+
+            <% shopItems.forEach(item => { %>
+                <div class="item-card">
+                    <img class="item-image" src="<%= item.image %>" alt="<%= item.name %>">
+                    <h3><%= item.name %></h3>
+                    <p><%= item.description %></p>
+                    <strong><%= item.price %> Gold</strong>
+                    <button class="buy-button" onclick="buyItem('<%= item.name %>')">Buy</button>
+                </div>
+            <% }); %>
+        </div>
+    </main>
+
+    <script>
+        function buyItem(itemName) {
+            alert(`You purchased ${itemName}!`);
+            // Optionally send a POST request to update the user's inventory
+            // fetch('/buy', { method: 'POST', body: JSON.stringify({ item: itemName }) });
+        }
+    </script>
+</body>
+</html>
