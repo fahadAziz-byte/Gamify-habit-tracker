@@ -8,6 +8,8 @@ const Challenges=require('../Gamify-habit-tracker/models/challenges');
 const Habit= require('../Gamify-habit-tracker/models/habits');
 const DailyStreaks = require('../Gamify-habit-tracker/models/dailyStreaks');
 const Leaderboard=require('../Gamify-habit-tracker/models/leaderboard');
+const { calculateCoinsForStreak } = require('./public/javascript/calculateCoins');
+const { calculatePoints } = require('./public/javascript/calculatePoints');
 const mongoose = require('mongoose');
 server.use(express.static('public'));
 let currentUserName='';
@@ -276,15 +278,18 @@ server.get('/viewChallenges', async (req, res) => {
 server.post("/completeChallenge", async (req, res) => {
     try {
         const challengeId= req.body.challengeId;
-        const bonusPoints = Number(req.body.points);
-        console.log(bonusPoints);
+        const basePoints = Number(req.body.points);
+        console.log('Challenge bonus points : '+bonusPoints);
         await Challenges.updateOne(
             { _id: challengeId, "participants.username": currentUserName },
             { $set: { "participants.$.status": "completed" } }
         );
 
+        
         const requsername = currentUserName;
-
+        const user=await Users.findOne({username:currentUserName})
+        currentUserName.coins += (basePoints)/4;
+        const bonusPoints=calculatePoints(basePoints,user);
         const leaderboardResult=await Leaderboard.findOneAndUpdate(
             { username: requsername },
             { $inc: { points: bonusPoints } },
@@ -355,10 +360,9 @@ server.post("/checkInHabit", async (req, res) => {
             }
         );
 
-        if (habitResult.modifiedCount === 0) {
-            return res.status(404).send("Habit not found or already checked in.");
-        }
-        const pointsToAdd = 5;
+        const user=await Users.findOne({username:currentUserName});
+        const basePoints = 5;
+        const pointsToAdd=calculatePoints(basePoints,user);
         const leaderboardResult = await Leaderboard.findOneAndUpdate(
             { username: currentUserName },
             { $inc: { points: pointsToAdd } },
@@ -366,6 +370,14 @@ server.post("/checkInHabit", async (req, res) => {
         );
         if (leaderboardResult.points >= leaderboardResult.level *100){
             await Leaderboard.updateOne({username:currentUserName},{ $inc:{level: 1}});
+        }
+
+        let habit= await Habit.findById(req.params._id);
+        const coins = calculateCoinsForStreak(habit.streak);
+        if (coins > 0) {
+            const user = await Users.findOne({username:habit.username});
+            user.coins += coins;
+            await user.save();
         }
 
         res.redirect('/habits');
