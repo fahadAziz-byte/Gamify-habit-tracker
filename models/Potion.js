@@ -6,6 +6,7 @@ const potionSchema = new mongoose.Schema({
     duration: { type: Number, required: true }, // Duration is in days
     cost: { type: Number, required: true },
     description: { type: String },
+    imageURL: { type: String, required: true }
 });
 
 module.exports = mongoose.model('Potion', potionSchema);

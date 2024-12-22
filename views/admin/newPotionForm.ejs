@@ -1,0 +1,42 @@
+
+<form action="" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="titleInput">Name</label>
+        <input name="name" type="text" class="form-control" id="titleInput" aria-describedby="titleHelp" placeholder="Enter Title" />
+        <small id="titleHelp" class="form-text text-muted">Potion Title</small>
+    </div>
+    
+    <div class="form-group">
+        <label for="descriptionInput">Description</label>
+        <textarea name="description" class="form-control" id="descriptionInput" aria-describedby="descriptionHelp" placeholder="Enter Description"></textarea>
+        <small id="descriptionHelp" class="form-text text-muted">Potion Details</small>
+    </div>
+
+    <div class="form-group">
+        <label for="descriptionInput">effectType</label>
+        <textarea name="effectType" class="form-control" id="descriptionInput" aria-describedby="descriptionHelp" placeholder="Enter Description"></textarea>
+        <small id="descriptionHelp" class="form-text text-muted">Potion effect type</small>
+    </div>
+
+    <div class="form-group">
+        <label for="descriptionInput">duration</label>
+        <textarea name="duration" class="form-control" id="descriptionInput" aria-describedby="descriptionHelp" placeholder="Enter Description"></textarea>
+        <small id="descriptionHelp" class="form-text text-muted">Potion Duration</small>
+    </div>
+    
+    <div class="form-group">
+        <label for="priceInput">Cost</label>
+        <input name="cost" type="text" class="form-control" id="priceInput" aria-describedby="priceHelp" placeholder="Enter Price">
+        <small id="priceHelp" class="form-text text-muted">Potion Price</small>
+    </div>
+    
+    <div class="form-group">
+        <label for="pictureInput">Image</label>
+        <input name="file" type="file" class="form-control" id="pictureInput" aria-describedby="pictureHelp" />
+        <small id="pictureHelp" class="form-text text-muted">Upload Potion Picture</small>
+    </div>
+    
+    <div class="form-group">
+        <button class="btn btn-info" type="submit">Create New Potion</button>
+    </div>
+</form>

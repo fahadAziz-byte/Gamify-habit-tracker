@@ -74,11 +74,7 @@
                 <% for (let index = 0; index < requests.length; index++) { %>
                     <div class="col-md-4 mb-3">
                         <div class="card">
-                            <% if(requests[index].senderUsername=='jibran'){ %>
-                                <img src="/images/alien-2-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
-                            <% }else{ %>
-                                <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
-                            <% } %>
+                            <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                             <div class="card-body">
                                 <h5 class="card-title">
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#userModal<%= index %>">
@@ -126,11 +122,7 @@
                     <% for (let index = 0; index < friendsList.length; index++) { %>
                         <div class="col-md-4 mb-3">
                             <div class="card">
-                                <% if(friendsList[index].username=='jibran'){ %>
-                                    <img src="/images/alien-2-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
-                                <% }else{ %>
-                                    <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
-                                <% } %>
+                                <img src="/<%=friendsList[index].avatar.imageURL%>" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                                 <div class="card-body">
                                     <h5 class="card-title">
                                         <a href="#" data-bs-toggle="modal" data-bs-target="#friendModal<%= index %>">
@@ -174,11 +166,7 @@
                     <% if(!(suggestedFriendsList[index].username === currentUser.username || requests.find((requestSender)=>requestSender.senderUsername === suggestedFriendsList[index].username))){ %>
                         <div class="col-md-4 mb-3">
                             <div class="card">
-                                <% if(suggestedFriendsList[index].username=='jibran'){ %>
-                                    <img src="/images/alien-2-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
-                                <% }else{ %>
-                                    <img src="/images/friend-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
-                                <% } %>
+                                    <img src="/<%=suggestedFriendsList[index].avatar.imageURL%>" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                                 <div class="card-body">
                                     <h5 class="card-title">
                                         <a href="#" data-bs-toggle="modal" data-bs-target="#suggestedModal<%= index %>">

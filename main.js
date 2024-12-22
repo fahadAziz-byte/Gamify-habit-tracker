@@ -54,6 +54,24 @@ async function performDailyUpdates() {
             }
         );
 
+        const users = await Users.find();
+
+        users.forEach(async user => {
+            const currentDate = new Date();
+    
+            user.inventory = user.inventory.filter(item => {
+                if (item.expirationDate && currentDate > item.expirationDate) {
+                    console.log(`Potion with ID ${item.potionId} expired for user ${user.username}.`);
+                    return false; // Remove expired potion
+                }
+                return true;
+            });
+    
+            await user.save();
+        });
+    
+        console.log('Potion expiration cleanup completed!');
+
         console.log("Daily updates performed successfully.");
     } catch (error) {
         console.error("Error performing daily updates:", error);
@@ -380,7 +398,7 @@ server.post("/checkInHabit", async (req, res) => {
             await Leaderboard.updateOne({username:currentUserName},{ $inc:{level: 1}});
         }
 
-        let habit= await Habit.findById(req.params._id);
+        let habit= await Habit.findOne({_id:req.body._id});
         const coins = calculateCoinsForStreak(habit.streak);
         if (coins > 0) {
             const user = await Users.findOne({username:habit.username});
@@ -401,10 +419,10 @@ server.get('/removeHabit/:_id',async(req,res)=>{
     res.redirect('/habits');
 })
 
-server.post('/shop/buy-avatar', async (req, res) => {
+server.post('/shop/buy-avatar/:id', async (req, res) => {
     try {
-        const avatarId= req.body.avatarID;
-        const avatar = await Avatar.findOne({_id:avatarId});
+        const avatar = await Avatar.findOne({_id:req.params.id});
+        console.log(avatar);
         const user = await Users.findOne({username:currentUserName}); // Assuming req.user contains authenticated user details
 
         if (user.coins < avatar.cost) {
@@ -413,7 +431,8 @@ server.post('/shop/buy-avatar', async (req, res) => {
 
         // Deduct coins and update the user's avatar
         user.coins -= avatar.cost;
-        user.avatarId = avatarId;
+        user.avatar.avatarId = req.params.id;
+        user.avatar.imageURL = avatar.imageURL;
 
         await user.save();
         res.redirect('/shop'); // Redirect back to shop after purchase
@@ -424,11 +443,10 @@ server.post('/shop/buy-avatar', async (req, res) => {
 });
 
 server.post('/shop/buy-potion/:potionId', async (req, res) => {
-    const { potionId } = req.params;
 
     try {
         const user = await Users.findOne({username:currentUserName}); // Assuming req.user contains authenticated user data
-        const potion = await Potion.findById(potionId);
+        const potion = await Potion.findOne({_id:req.params.potionId});
 
         if (!potion) return res.status(404).json({ message: 'Potion not found' });
 
@@ -449,6 +467,10 @@ server.post('/shop/buy-potion/:potionId', async (req, res) => {
             effectType: potion.effectType,
             duration: potion.duration,
             activatedAt: null, // Set to null initially
+            expirationDate: null, // Set to null initially
+            imageURL: potion.imageURL,
+            description: potion.description,
+            cost: potion.cost,
         });
 
         await user.save();
@@ -462,7 +484,26 @@ server.post('/shop/buy-potion/:potionId', async (req, res) => {
 
 server.get('/admin',async(req,res)=>{
     const avatar=await Avatar.find();
-    res.render('admin/admin.ejs',{avatar})
+    const potion=await Potion.find();
+    res.render('admin/admin.ejs',{avatar,potion})
+})
+
+server.get('/createPotion',async(req,res)=>{
+    res.render('admin/newPotionForm.ejs');
+})
+
+server.post('/createPotion',upload.single("file"),async (req, res) => {
+    let data = {
+        name: req.body.name,
+        effectType: req.body.effectType,
+        duration: Number(req.body.duration), 
+        cost: Number(req.body.cost), 
+        description: req.body.description,
+        imageURL: req.file ? req.file.filename : req.body.imageURL 
+    };
+    let newPotion= new Potion(data);
+    await newPotion.save();
+    res.redirect('/admin');
 })
 
 server.get('/createAvatar',(req,res)=>{
@@ -479,17 +520,79 @@ server.post('/createAvatar',upload.single("file"),async (req, res) => {
     res.redirect('/admin');
 })
 
-server.get('/shop', async(req, res) => {
-    let avatars=await Avatar.find();
-    let potions=await Potion.find();
-    const user=await Users.findOne({username:currentUserName});
-    if(user.avatarID){
-        const userAvatar=await Avatar.findOne({_id:user.avatarId});
-        res.render('shop', { potions,avatars,user,userAvatar });
-    }else{
-        res.render('shop', { potions,avatars,user,userAvatar:{} });
+server.get('/shop', async (req, res) => {
+    let avatars = await Avatar.find();
+    let potions = await Potion.find();
+    const user = await Users.findOne({ username: currentUserName });
+    let userAvatar = null;
+
+    const allPotions = await Potion.find();
+
+        // Extract potion IDs from the user's inventory
+    const purchasedPotionIds = user.inventory.map(item => item.potionId.toString());
+
+        // Categorize potions
+    const purchasedPotions = allPotions.filter(potion => purchasedPotionIds.includes(potion._id.toString()));
+    const notPurchasedPotions = allPotions.filter(potion => !purchasedPotionIds.includes(potion._id.toString()));
+
+
+    if (user.avatar.avatarId) {
+        userAvatar = await Avatar.findOne({ _id: user.avatar.avatarId });
+    }
+
+    res.render('shop', { purchasedPotions,notPurchasedPotions, avatars, user, userAvatar });
+});
+
+server.get('/inventory', async (req, res) => {
+    const user = await Users.findOne({ username: currentUserName });
+    const currentDate = new Date();
+
+    // Check for expired potions
+    user.inventory = user.inventory.filter(item => {
+        if (item.expirationDate && currentDate > item.expirationDate) {
+            console.log('Potion with ID ${item.potionId} has expired.');
+            return false; // Remove expired potion
+        }
+        return true; // Keep valid potion
+    });
+    let userAvatar = null;
+
+    // Fetch user's avatar if it exists
+    if (user.avatar.avatarId) {
+        userAvatar = await Avatar.findOne({ _id: user.avatar.avatarId });
+    }
+
+    await user.save();
+    res.render('inventory', {userAvatar,user, potions: user.inventory });
+});
+
+
+
+server.post('/activatePotion/:id', async (req, res) => {
+    const user = await Users.findOne({ username: currentUserName });
+    const potionId = req.params.id;
+
+    const potion = user.inventory.find(item => item.potionId.toString() === potionId);
+    console.log(potion);
+    if (potion) {
+        if (!potion.activatedAt) {
+            const currentDate = new Date();
+            potion.activatedAt = currentDate;
+            potion.expirationDate = new Date(currentDate.getTime() + potion.duration * 24 * 60 * 60 * 1000);
+
+            await user.save();
+            console.log('Potion activated successfully!');
+            res.redirect('/inventory');
+        } else {
+            res.send('Potion is already activated!');
+        }
+    } else {
+        res.status(404).send('Potion not found!');
+        console.log(potionId)
     }
 });
+
+
 
 
 server.listen(5000,()=>{

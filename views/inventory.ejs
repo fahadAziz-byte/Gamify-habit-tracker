@@ -408,8 +408,8 @@
     </section>
 
     <nav class="market-nav">
-        <a href="/shop" class="active">Market</a>
-        <a href="/inventory">Inventory</a>
+        <a href="/shop" >Market</a>
+        <a href="/inventory" class="active">Inventory</a>
     </nav>
 
     <main class="market-content">
@@ -439,58 +439,26 @@
                 </div>
                 
                 <div class="items-grid">
-                    <% purchasedPotions.forEach((potion) => { %>
-                        <div class="item-card">
-                            <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
-                            <h3><%= potion.name %></h3>
-                            <p><%= potion.description %></p>
-                            <div class="cost"><%= potion.cost %> 🪙</div>
-                            <form action="/shop/buy-potion/<%= potion._id %>" method="POST">
-                                <button type="submit" disabled>Already Bought</button>
-                            </form>
-                        </div>
-                    <% }); %>
+                    <% potions.forEach((potion) => { 
 
-                    <% notPurchasedPotions.forEach((potion) => { %>
-                        <div class="item-card">
-                            <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
-                            <h3><%= potion.name %></h3>
-                            <p><%= potion.description %></p>
-                            <div class="cost"><%= potion.cost %> 🪙</div>
-                            <form action="/shop/buy-potion/<%= potion._id %>" method="POST">
-                                <% if (user.coins < potion.cost) { %>
-                                    <button type="submit" disabled>Not enough coins</button>
-                                <% } else { %>
-                                    <button type="submit">Buy</button>
-                                <% } %>
-                            </form>
-                        </div>
-                    <% }); %>
-
-                    <% avatars.forEach(avatar => { 
-                        if(String(avatar._id) === String(user.avatar.avatarId)) { %>
+                        if(potion.activatedAt){ %>
                             <div class="item-card">
-                                <img class="item-image" src="/<%= avatar.imageURL %>" alt="<%= avatar.name %>">
-                                <h3><%= avatar.name %></h3>
-                                <p><%= avatar.description %></p>
-                                <div class="cost"><%= avatar.cost %> 🪙</div>
-                                <form action="/shop/buy-avatar" method="POST">
-                                    <input type="hidden" name="avatarId" value="<%= avatar._id %>">
-                                    <button type="submit" disabled>Already Bought</button>
+                                <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
+                                <h3><%= potion.name %></h3>
+                                <p><%= potion.description %></p>
+                                <p>Cost: <%= potion.cost %> coins</p>
+                                <form action="/activatePotion/<%= potion.potionId %>"  method="post">
+                                    <button type="submit" disabled>Already Activated</button>
                                 </form>
                             </div>
-                        <% } else { %>
+                        <% }else{ %>
                             <div class="item-card">
-                                <img class="item-image" src="/<%= avatar.imageURL %>" alt="<%= avatar.name %>">
-                                <h3><%= avatar.name %></h3>
-                                <p><%= avatar.description %></p>
-                                <div class="cost"><%= avatar.cost %> 🪙</div>
-                                <form action="/shop/buy-avatar/<%= avatar._id %>" method="POST">
-                                    <% if (user.coins < avatar.cost) { %>
-                                        <button type="submit" disabled>Not enough coins</button>
-                                    <% } else { %>
-                                        <button type="submit">Buy</button>
-                                    <% } %>
+                                <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
+                                <h3><%= potion.name %></h3>
+                                <p><%= potion.description %></p>
+                                <p>Cost: <%= potion.cost %> coins</p>
+                                <form action="/activatePotion/<%= potion.potionId %>"  method="post">
+                                    <button type="submit">Activate Potion</button>
                                 </form>
                             </div>
                         <% }
