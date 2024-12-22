@@ -116,8 +116,9 @@ server.get('/',(req,res)=>{
 
 
 
-server.get('/home',(req,res)=>{
-    res.render('Homepage');
+server.get('/home',async(req,res)=>{
+    const user=await Users.findOne({username:currentUserName});
+    res.render('Homepage',{user});
 })
 
 server.post('/signup',async(req,res)=>{
@@ -143,7 +144,7 @@ server.post('/login',async(req,res)=>{
     let isUserValid=new Users(data);
     if(await Users.findOne({username : isUserValid.username , password : isUserValid.password})){
         currentUserName=isUserValid.username;
-        return res.render('Homepage');
+        return res.redirect('/home');
     }
     return res.render('Registration/Login', { error: 'No Such User exists' });
 })
