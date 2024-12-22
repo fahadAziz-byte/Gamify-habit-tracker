@@ -20,10 +20,10 @@ let currentUserName='';
 let multer = require("multer");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./uploads"); // Directory to store files
+    cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`); // Unique file name
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 const upload = multer({ storage: storage });
@@ -160,10 +160,10 @@ server.get('/friendRequests',async(req,res)=>{
     try{
         const friendsList=await Users.find({username : {$in : currentUser.friends}});
         const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
-        res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,currentUser,requests,sentRequests});
+        res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,currentUser,requests,sentRequests,user:currentUser});
     }catch(err){
         const suggestedFriendsList=await Users.find();
-        res.render('friendRequests.ejs',{suggestedFriendsList,currentUser,requests,sentRequests});
+        res.render('friendRequests.ejs',{suggestedFriendsList,currentUser,requests,sentRequests,user:currentUser});
     }
     
 })
@@ -254,8 +254,9 @@ server.post('/createChallenge', async (req, res) => {
     }
 });
 
-server.get('/Challenges',(req,res)=>{
-    res.render('Challenges');
+server.get('/Challenges',async(req,res)=>{
+    const user=await Users.findOne({username:currentUserName});
+    res.render('Challenges',{user});
 })
 
 
@@ -338,7 +339,8 @@ server.post("/completeChallenge", async (req, res) => {
 server.get("/leaderboard", async (req, res) => {
     try {
         const leaderboard = await Leaderboard.find().sort({ points: -1 }).limit(10);
-        res.render("leaderboard", { leaderboard });
+        const user=await Users.findOne({username:currentUserName})
+        res.render("leaderboard", { leaderboard,user });
     } catch (error) {
         console.error("Error fetching leaderboard:", error);
         res.status(500).send("Error loading leaderboard.");
@@ -349,12 +351,13 @@ server.get("/leaderboard", async (req, res) => {
 server.get('/habits', async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
     console.log(today);
+    const user=await Users.findOne({username:currentUserName});
     const habits = await Habit.find({ username : currentUserName});
 
     const dueHabits = habits.filter(habit => habit.isCompletedToday!=true );
     const completedHabits = habits.filter(habit => habit.isCompletedToday ==true);
 
-    res.render('habits/habits', { dueHabits, completedHabits });
+    res.render('habits/habits', {habits, dueHabits, completedHabits,user });
 });
 
 server.get("/createHabit",(req,res)=>{
@@ -362,21 +365,18 @@ server.get("/createHabit",(req,res)=>{
 })
 
 server.post("/createHabit",async(req,res)=>{
-    if(req.body.username===currentUserName){
         let data=req.body;
+        data.username=currentUserName;
         let newHabit=new Habit(data);
         await newHabit.save();
         res.redirect('/habits');
-    }else{
-        res.send('You cannot add habits for other user');
-    }
 });
 
-server.post("/checkInHabit", async (req, res) => {
+server.get("/checkInHabit/:_id", async (req, res) => {
     try {
         
         const habitResult = await Habit.updateOne(
-            { _id: req.body._id, isCompletedToday: false },
+            { _id: req.params._id, isCompletedToday: false },
             {
                 $set: {
                     isCompletedToday: true,
@@ -398,7 +398,7 @@ server.post("/checkInHabit", async (req, res) => {
             await Leaderboard.updateOne({username:currentUserName},{ $inc:{level: 1}});
         }
 
-        let habit= await Habit.findOne({_id:req.body._id});
+        let habit= await Habit.findOne({_id:req.params._id});
         const coins = calculateCoinsForStreak(habit.streak);
         if (coins > 0) {
             const user = await Users.findOne({username:habit.username});
