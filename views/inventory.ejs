@@ -215,6 +215,7 @@
                                 <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
                                 <h3><%= potion.name %></h3>
                                 <p><%= potion.description %></p>
+                                <p>Expires At: <%= potion.expirationDate.toISOString().slice(0, 16).replace('T', ' ') %></p>
                                 <p>Cost: <%= potion.cost %> coins</p>
                                 <form action="/activatePotion/<%= potion.potionId %>"  method="post">
                                     <button type="submit" disabled>Already Activated</button>
@@ -227,7 +228,7 @@
                                 <p><%= potion.description %></p>
                                 <p>Cost: <%= potion.cost %> coins</p>
                                 <form action="/activatePotion/<%= potion.potionId %>"  method="post">
-                                    <button type="submit">Activate Potion</button>
+                                    <button type="submit" style="color: #666;">Activate Potion</button>
                                 </form>
                             </div>
                         <% }

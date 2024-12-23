@@ -159,6 +159,7 @@
                         <img src="/<%= potion.imageURL %>" alt="<%= potion.name %>" class="img-fluid">
                         <h4><%= potion.name %></h4>
                         <p class="description"><%= potion.description %></p>
+                        <div class="duration">Duration: <%= potion.duration %> days</div>
                         <div class="cost"><%= potion.cost %> 🪙</div>
                         <% if (purchasedPotions.some(p => p._id.toString() === potion._id.toString())) { %>
                             <button class="btn btn-secondary" disabled>Already Bought</button>

@@ -132,7 +132,8 @@ server.post('/signup',async(req,res)=>{
         }
         await newUser.save();
         currentUserName=newUser.username;
-        return res.render('Homepage');
+        const user=await Users.findOne({username:currentUserName});
+        return res.render('Homepage',{user});
     } catch (error) {
         console.error("Error occurred:", error);
         return res.status(500).send('An unexpected error occurred.');
@@ -580,7 +581,6 @@ server.post('/activatePotion/:id', async (req, res) => {
             const currentDate = new Date();
             potion.activatedAt = currentDate;
             potion.expirationDate = new Date(currentDate.getTime() + potion.duration * 24 * 60 * 60 * 1000);
-
             await user.save();
             console.log('Potion activated successfully!');
             res.redirect('/inventory');
