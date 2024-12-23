@@ -5,210 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Habits</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        section.backgroundLight{
-    background: rgb(223, 230, 233);
-}
+        section.backgroundLight {
+            background: rgb(223, 230, 233);
+        }
 
-.modalGreen{
-    background: #3a5864;
-}
+        .modalGreen {
+            background: #3a5864;
+        }
 
-input.green-placeholder{
-    background: #2E3944;
-    border: 0;
-    border-radius: 0;
-}
+        input.green-placeholder,
+        textarea.green-placeholder {
+            background: #2E3944;
+            border: 0;
+        }
 
-input.green-placeholder::placeholder{
-    color: white;
-}
+        input.green-placeholder::placeholder,
+        textarea.green-placeholder::placeholder {
+            color: white;
+        }
 
-textarea.green-placeholder{
-    background: #2E3944;
-    border: 0;
-    border-radius: 0;
-}
+        .permanentHeight {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-textarea.green-placeholder::placeholder{
-    color: white;
-}
+        .commonBorderAndBackground {
+            background-color: #EDECEE;
+            overflow-y: auto;
+            padding: 10px;
+        }
 
-input[type="radio"] {
-    display: none;
-}
+        .habit-row {
+            display: flex;
+            gap: 10px;
+        }
 
-/* Custom radio button container */
-.custom-radio {
-    display: inline-block;
-    position: relative;
-    width: 50px;
-    height: 50px;
-    border: 2px solid #2E3944;
-    border-radius: 50%;
-    background-color: white;
-    text-align: center;
-    line-height: 46px; /* Center text vertically */
-    font-size: 14px;
-    color: #007bff;
-    cursor: pointer;
-    user-select: none;
-}
+        .habit-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* Add hover effect */
-.custom-radio:hover {
-    background-color: #e6f7ff;
-}
-
-/* Checked state */
-input[type="radio"]:checked + .custom-radio {
-    background-color: #3a5864;
-    color: white;
-}
-
-/* Add some spacing */
-.radio-container {
-    margin: 10px;
-}
-
-/* habits section */
-.permanentHeight{
-    height: 80vh;
-}
-
-.commonBorderAndBackground{
-    background-color: #EDECEE;
-    /* border-radius: 2%;    */
-    /* FFFFFF80 */
-    
-}
-
-.OverFlow{
-    overflow: scroll;
-}
+        .card {
+            word-wrap: break-word;
+        }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-    <!-- Include Header -->
     <%- include('../../views/partials/header') %>
 
     <section class="mb-4">
         <div class="p-3 d-flex">
-            <div class="w-25 mx-auto " >
+            <div class="w-25 mx-auto">
                 <input type="text" class="form-input w-100 mt-1" placeholder="Search">
             </div>
-            <div class="">
+            <div>
                 <button type="button" class="btn btn-success" id="openFormButton" data-bs-toggle="modal" data-bs-target="#userFormModal"><span class="fw-bold">+ </span>Add Habit</button>
             </div>
         </div>
         <div class="container-fluid mt-2 section3">
-            <div class="row">
-                <div class="col-lg">
+            <div class="row habit-row">
+                <div class="col-lg habit-column">
                     <h4 class="text-muted fw-bold">Habits</h4>
-                    <div class="commonBorderAndBackground permanentHeight OverFlow">
-                        <% habits.forEach((habit)=>{%>
-                        <div class="card p-2 m-3 shadow">
-                            
-                            
-                            <div class="d-flex">
-                                
-                                    <div class="bg-light">
-                                    </div>
+                    <div class="commonBorderAndBackground permanentHeight">
+                        <% habits.forEach((habit) => { %>
+                            <div class="card p-2 m-3 shadow">
+                                <div class="d-flex">
                                     <div class="ms-2 p-2">
-                                        <h4 class="text-muted"><%=habit.title%></h4>
-                                        <p class="text-muted"><%=habit.description%></p>
-                                        <p class="text-muted">
-                                            Streak: <%=habit.streak %>
-                                        </p>
-                                        <% if(habit.lastCheckIn){ %>
+                                        <h4 class="text-muted"><%= habit.title %></h4>
+                                        <p class="text-muted"><%= habit.description %></p>
+                                        <p class="text-muted">Streak: <%= habit.streak %></p>
+                                        <% if (habit.lastCheckIn) { %>
                                             <p class="text-muted">
                                                 <img src="/images/calendar.png" alt="">
-                                                Last Checked In: <%=habit.lastCheckIn.split('T')[0]; %>
+                                                Last Checked In: <%= habit.lastCheckIn.split('T')[0] %>
                                             </p>
                                         <% } %>
                                         <p class="text-muted">
                                             <img src="/images/calendar.png" alt="">
-                                            Created At: <%=habit.createdDate.toISOString().split('T')[0]; %>
+                                            Created At: <%= habit.createdDate.toISOString().split('T')[0] %>
                                         </p>
                                     </div>
-                                
+                                </div>
                             </div>
-                            
-                        </div>
                         <% }) %>
                     </div>
                 </div>
-                <div class="col-lg">
+                <div class="col-lg habit-column">
                     <h4 class="text-muted fw-bold">Due Habits</h4>
-                    <div class="commonBorderAndBackground permanentHeight OverFlow">
-                        <% dueHabits.forEach((habit)=>{%>
-                        <div class="card p-2 m-3 shadow">
-                            <div class="d-flex">
-                                
-                                
-                                <div class="bg-light">
-                                
-                                        <div class="bg-light">
-                                            <a href="/removeHabit/<%=habit._id%>">
-                                                <button class="btn mt-2"><img src="/images/delete.png" alt="" width="24px"></button>
-                                            </a>
-                                            <a href="/checkinHabit/<%=habit._id%>">
-                                                <button class="btn mt-2"><img src="/images/check-mark.png" alt="" width="24px"></button>
-                                            </a>
-                                        </div>
-                                        <div class="ms-2 p-2">
-                                            <h4 class="text-muted"><%=habit.title%></h4>
-                                            <p class="text-muted"><%=habit.description%></p>
-                                            <% if(habit.lastCheckIn){ %>
-                                                <p class="text-muted">
-                                                    <img src="/images/calendar.png" alt="">
-                                                    Last Checked In: <%=habit.lastCheckIn.split('T')[0]; %>
-                                                </p>
-                                            <% } %>
-                                        </div>
-                                    
-                            </div>
-                            
-                        </div>
-                        <% }) %>
-                    </div>
-                </div>
-                <div class="col-lg">
-                    <h4 class="text-muted fw-bold">Completed</h4>
-                    <div class="commonBorderAndBackground permanentHeight OverFlow">
-                        <% completedHabits.forEach((habit)=>{%>
-                        <div class="card p-2 m-3 shadow">
-                            <div class="d-flex">
-                                
+                    <div class="commonBorderAndBackground permanentHeight">
+                        <% dueHabits.forEach((habit) => { %>
+                            <div class="card p-2 m-3 shadow">
+                                <div class="d-flex">
                                     <div class="bg-light">
                                         <a href="/removeHabit/<%=habit._id%>">
                                             <button class="btn mt-2"><img src="/images/delete.png" alt="" width="24px"></button>
                                         </a>
+                                        <a href="/checkinHabit/<%=habit._id%>">
+                                            <button class="btn mt-2"><img src="/images/check-mark.png" alt="" width="24px"></button>
+                                        </a>
                                     </div>
                                     <div class="ms-2 p-2">
-                                        <h4 class="text-muted"><%=habit.title%></h4>
-                                        <p class="text-muted"><%=habit.description%></p>
-                                        <% if(habit.lastCheckIn){ %>
-                                        <p class="text-muted">
-                                            <img src="/images/calendar.png" alt="">
-                                            Last Checked In: <%=habit.lastCheckIn.split('T')[0]; %>
-                                        </p>
+                                        <h4 class="text-muted"><%= habit.title %></h4>
+                                        <p class="text-muted"><%= habit.description %></p>
+                                        <% if (habit.lastCheckIn) { %>
+                                            <p class="text-muted">
+                                                <img src="/images/calendar.png" alt="">
+                                                Last Checked In: <%= habit.lastCheckIn.split('T')[0] %>
+                                            </p>
                                         <% } %>
                                     </div>
+                                </div>
                             </div>
-                        </div>
-                    <% }) %>
+                        <% }) %>
+                    </div>
+                </div>
+                <div class="col-lg habit-column">
+                    <h4 class="text-muted fw-bold">Completed</h4>
+                    <div class="commonBorderAndBackground permanentHeight">
+                        <% completedHabits.forEach((habit) => { %>
+                            <div class="card p-2 m-3 shadow">
+                                <div class="d-flex">
+                                    <div class="ms-2 p-2">
+                                        <h4 class="text-muted"><%= habit.title %></h4>
+                                        <p class="text-muted"><%= habit.description %></p>
+                                        <% if (habit.lastCheckIn) { %>
+                                            <p class="text-muted">
+                                                <img src="/images/calendar.png" alt="">
+                                                Last Checked In: <%= habit.lastCheckIn.split('T')[0] %>
+                                            </p>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Modal -->
     <div class="modal fade" id="userFormModal" tabindex="-1" aria-labelledby="userFormModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -228,8 +169,6 @@ input[type="radio"]:checked + .custom-radio {
                         </div>
                     </div>
                     <div class="ms-3 me-3">
-                        
-                        
                         <div class="mb-3">
                             <label for="tags" class="form-label text-muted fw-bold">Tags:</label>
                             <input type="text" class="form-control green-placeholder" id="Tag" name="tags" required placeholder="Add a Tag">
@@ -246,3 +185,7 @@ input[type="radio"]:checked + .custom-radio {
     <%- include('../../views/partials/footer') %>
 </body>
 </html>
+
+
+
+
