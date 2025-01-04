@@ -44,6 +44,7 @@
                     <th>Price</th>
                     <th>Description</th>
                     <th>Picture</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,6 +54,12 @@
                         <td><%= avatar[index].cost %></td>
                         <td><%= avatar[index].description %></td>
                         <td><img src="/<%= avatar[index].imageURL %>" width="100px" alt="<%= avatar[index].name %>" /></td>
+                        <td>
+                            <a href="editAvatar/<%= avatar[index]._id%>"><button class="btn btn-secondary">Edit</button></a>
+                            <% if(!(String(avatar[index]._id) === String(userAvatarId))){%>
+                                <a href="/deleteAvatar/<%= avatar[index]._id%>"><button class="btn btn-danger">Delete</button></a>
+                            <% } %>
+                        </td>
                     </tr>
                 <% } %>
             </tbody>

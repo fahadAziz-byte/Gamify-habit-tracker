@@ -132,7 +132,7 @@
     <p id="passwordError" style="color: red; font-size: 14px; display: none;"></p>
     
     <div class="signup">
-      <form action="/signup" method="post" onsubmit="return validateSignupForm()">
+      <form action="/signup" method="post" >
         <label for="chk" aria-hidden="true">Sign up</label>
         <input type="text" name="username" placeholder="User name" required>
         <input type="email" name="email" placeholder="Email" required>
@@ -153,20 +153,6 @@
   </div>
 
   <script>
-    function validateSignupForm() {
-      const password = document.getElementById('password').value;
-      const passwordError = document.getElementById('passwordError');
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-      if (!passwordRegex.test(password)) {
-        passwordError.style.display = 'block';
-        passwordError.textContent = 'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.';
-        return false;
-      }
-
-      passwordError.style.display = 'none';
-      return true;
-    }
   </script>
 </body>
 <script>
