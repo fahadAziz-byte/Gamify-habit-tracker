@@ -545,12 +545,15 @@ server.get('/deleteAvatar/:id',auth,async(req,res)=>{
     res.redirect('/admin');
 });
 
-server.post('/editAvatar/:id',auth,async(req,res)=>{
+server.post('/editAvatar/:id',upload.single("file"),auth,async(req,res)=>{
     const avatar=await Avatar.findOne({_id:req.params.id});
     let data = req.body;
     avatar.name = data.name;
     avatar.cost = data.cost;
     avatar.description = data.description;
+    if (req.file) {
+        avatar.imageURL = req.file.filename;
+    }
     await avatar.save();
     res.redirect('/admin');
 })
@@ -571,7 +574,6 @@ server.post('/createAvatar',upload.single("file"),async (req, res) => {
 
 server.get('/shop',auth, async (req, res) => {
     let avatars = await Avatar.find();
-    let potions = await Potion.find();
     const user = await Users.findOne({ username: req.cookies.username });
     let userAvatar = null;
 

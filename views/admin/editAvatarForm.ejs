@@ -33,7 +33,7 @@
     <a href="/admin"><button class="btn btn-info" type="submit">Go Back</button></a>
     <div class="form-container">
         <h2>Edit Avatar ( <%=avatar.name%> )</h2>
-        <form action="/editAvatar/<%=avatar._id%>" method="post">
+        <form action="/editAvatar/<%=avatar._id%>" method="post" enctype="multipart/form-data">
             <div class="form-group mb-3">
                 <label for="titleInput" class="form-label">Name</label>
                 <input name="name" type="text" class="form-control" id="titleInput" aria-describedby="titleHelp" placeholder="Enter Avatar Title" required value="<%=avatar.name%>" />
@@ -50,6 +50,12 @@
                 <label for="priceInput" class="form-label">Cost</label>
                 <input name="cost" type="number" class="form-control" id="priceInput" aria-describedby="priceHelp" placeholder="Enter Price" required value="<%=avatar.cost%>">
                 <small id="priceHelp" class="form-text text-muted">Avatar Price</small>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="pictureInput" class="form-label">Image</label>
+                <input name="file" type="file" class="form-control" id="pictureInput" aria-describedby="pictureHelp" />
+                <small id="pictureHelp" class="form-text text-muted">Upload Avatar Picture</small>
             </div>
             
             <div class="form-group">
