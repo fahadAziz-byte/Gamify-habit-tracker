@@ -503,7 +503,7 @@ server.post('/shop/buy-potion/:potionId',auth, async (req, res) => {
 
         await user.save();
 
-        res.redirect('/shop');
+        res.redirect("/shop");
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -648,8 +648,7 @@ server.post('/activatePotion/:id',auth, async (req, res) => {
 server.listen(5000,()=>{
     console.log("Server running on port 5000")
 })
-
-let connectionString='mongodb://localhost/Users';
+let connectionString='mongodb+srv://Fahad_Aziz200:VeFndbmK4qGVaToB@cluster0.l31sl.mongodb.net/';
 mongoose.connect(connectionString)
 .then(console.log('Successfully connected to '+connectionString))
 .catch(err=>console.log("error occured : \n"+err));
