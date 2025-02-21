@@ -25,9 +25,9 @@ let usersSchema=mongoose.Schema({
     avatarId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Avatar',
-        default: new mongoose.Types.ObjectId("67671dc84b9c6c75012d2ae7"),
+        default: new mongoose.Types.ObjectId("67b8a57c0d6e268330339cb5"),
     },
-    imageURL: { type: String ,default:"1734811080392-user-profile-svgrepo-com.svg"},
+    imageURL: { type: String ,default:"defaultProfile.svg"},
     }
 });
 
