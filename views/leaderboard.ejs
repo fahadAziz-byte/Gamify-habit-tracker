@@ -130,7 +130,7 @@
         <div class="leaderboard-container">
             <h2 class="leaderboard-title">🏆 Top Players Leaderboard</h2>
             
-            <% leaderboard.forEach((user, index) => { %>
+            <% leaderboard.forEach((users, index) => { %>
                 <div class="leaderboard-item">
                     <div class="rank-badge rank-<%= index + 1 %>">
                         <% if (index === 0) { %>
@@ -144,11 +144,11 @@
                         <% } %>
                     </div>
                     <div class="player-info">
-                        <div class="player-name"><%= user.username %></div>
-                        <div class="player-level">Level <%= user.level %></div>
+                        <div class="player-name"><%= users.username %></div>
+                        <div class="player-level">Level <%= users.level %></div>
                     </div>
                     <div class="points-badge">
-                        <%= user.points %> Points
+                        <%= users.points %> Points
                     </div>
                 </div>
             <% }); %>
