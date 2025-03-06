@@ -1,7 +1,18 @@
 function calculatePoints(basePoints, user) {
     let finalPoints = basePoints;
 
+    if(!user|| !user.inventory){
+   
+        console.error(" user or inventory is null ");
+        return finalPoints;
+       
     
+    
+      }
+    
+
+
+
     user.inventory.forEach((potion) => {
         if (potion.activatedAt) {
             const activationDate = new Date(potion.activatedAt);
