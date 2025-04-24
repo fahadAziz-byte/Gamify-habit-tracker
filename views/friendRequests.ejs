@@ -52,16 +52,16 @@
                 <% for (let index = 0; index < requests.length; index++) { %>
                     <div class="col-md-4 mb-3">
                         <div class="card">
-                            <img src="/images/avatar-svgrepo-com.svg" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
+                            <img src="/<%=requests[index].avatar.imageURL%>" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
                             <div class="card-body">
                                 <h5 class="card-title">
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#userModal<%= index %>">
-                                        <%= requests[index].senderUsername %>
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#userModal<%=index%>">
+                                        <%= requests[index].username %>
                                     </a>
                                 </h5>
-                                <% if (requests[index].senderUsername && requests[index].receiverUsername) { %>
-                                    <a href="/confirmRequests/<%= requests[index].senderUsername %>/<%= requests[index].receiverUsername %>" class="btn btn-primary">Confirm</a>
-                                    <a href="/deleteRequest/<%= requests[index].senderUsername %>/<%= requests[index].receiverUsername %>" class="btn btn-warning">Delete</a>
+                                <% if (requests[index].username && user.username) { %>
+                                    <a href="/confirmRequests/<%= requests[index].username %>/<%= user.username %>" class="btn btn-primary">Confirm</a>
+                                    <a href="/deleteRequest/<%= requests[index].username %>/<%= user.username %>" class="btn btn-warning">Delete</a>
                                 <% } else { %>
                                     <p>Invalid request data</p>
                                 <% } %>
@@ -141,7 +141,7 @@
             <h2 class="text-center mb-4">Suggested Friends</h2>
             <div class="row">
                 <% for (let index = 0; index < suggestedFriendsList.length; index++) { %>
-                    <% if(!(suggestedFriendsList[index].username === currentUser.username || requests.find((requestSender)=>requestSender.senderUsername === suggestedFriendsList[index].username))){ %>
+                    <% if(!(suggestedFriendsList[index].username === user.username || requests.find((requestSender)=>requestSender.senderUsername === suggestedFriendsList[index].username))){ %>
                         <div class="col-md-4 mb-3">
                             <div class="card">
                                     <img src="/<%=suggestedFriendsList[index].avatar.imageURL%>" width="90px" height="90px" class="card-img-top" alt="Friend's Picture">
@@ -156,7 +156,7 @@
                                     <% if(sentRequests.find((element)=>element.receiverUsername === suggestedFriendsList[index].username)){ %>
                                         <a href="" class="btn btn-light" style="border: 3px solid rgb(61, 61, 198)">Request Sent</a>
                                     <% } else {%>
-                                        <a href="/addFriend/<%= suggestedFriendsList[index].username %>/<%= currentUser.username %>" class="btn btn-primary">Add Friend</a>
+                                        <a href="/addFriend/<%= suggestedFriendsList[index].username %>/<%= user.username %>" class="btn btn-primary">Add Friend</a>
                                     <% } %>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2024 Habitify. All Rights Reserved.</p>
+            <p>&copy; 2025 Habitify. All Rights Reserved.</p>
             <div class="footer-links">
                 <a href="#features">Features</a>
                 <a href="#about">About</a>

@@ -20,7 +20,6 @@ server.use(express.static('public'));
 server.use(express.static('uploads'));
 server.use(cookieParser());
 server.use(session({ secret: "my session secret" }));
-let currentUserName='';
 
 let multer = require("multer");
 const storage = multer.diskStorage({
@@ -152,8 +151,8 @@ server.post('/signup',async(req,res)=>{
             secure: true,   
             sameSite: 'Strict' 
         });
-        currentUserName=newUser.username;
-        const user=await Users.findOne({username:currentUserName});
+        req.cookies.username=newUser.username;
+        const user=await Users.findOne({username:req.cookies.username});
         return res.render('Homepage',{user});
     } catch (error) {
         console.error("Error occurred:", error);
@@ -165,7 +164,7 @@ server.post('/login',async(req,res)=>{
     let data = req.body;
     let isUserValid=new Users(data);
     if(await Users.findOne({username : isUserValid.username , password : isUserValid.password})){
-        currentUserName=req.cookies.username;
+        req.cookies.username=req.cookies.username;
         
         res.cookie('username', isUserValid.username, {
             maxAge: 3600000, 
@@ -185,15 +184,19 @@ server.get('/logout',(req,res)=>{
 
 server.get('/friendRequests',auth,async(req,res)=>{
     const sentRequests=await Requests.find({senderUsername : req.cookies.username});
-    const requests=await Requests.find({receiverUsername : req.cookies.username});
     const currentUser=await Users.findOne({username:req.cookies.username});
+    const receivedRequests=await Requests.find({receiverUsername : req.cookies.username});
+    const senderUsernames = receivedRequests.map(req => req.senderUsername);
+    const requestors = await Users.find({ username: { $in: senderUsernames } });
     try{
+        
+        
         const friendsList=await Users.find({username : {$in : currentUser.friends}});
         const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
-        res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,currentUser,requests,sentRequests,user:currentUser});
+        res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,requests:requestors,sentRequests,user:currentUser});
     }catch(err){
         const suggestedFriendsList=await Users.find();
-        res.render('friendRequests.ejs',{suggestedFriendsList,currentUser,requests,sentRequests,user:currentUser});
+        res.render('friendRequests.ejs',{suggestedFriendsList,currentUser,requests:requestors,sentRequests,user:currentUser});
     }
     
 })
@@ -323,7 +326,7 @@ server.get('/viewChallenges',auth, async (req, res) => {
             "participants.username": req.cookies.username,
         });
 
-        res.render('viewChallenges', { challenges, currentUserName:req.cookies.username });
+        res.render('viewChallenges', { challenges, currentUsername:req.cookies.username });
     } catch (err) {
         console.error(err);
         res.status(500).send("Failed to fetch challenges.");
@@ -336,14 +339,14 @@ server.post("/completeChallenge",auth, async (req, res) => {
         const basePoints = Number(req.body.points);
         console.log('Challenge bonus points : '+basePoints);
         await Challenges.updateOne(
-            { _id: challengeId, "participants.username": currentUserName },
+            { _id: challengeId, "participants.username": req.cookies.username },
             { $set: { "participants.$.status": "completed" } }
         );
 
         
-        const requsername = currentUserName;
-        const user=await Users.findOne({username:currentUserName})
-        currentUserName.coins += (basePoints)/4;
+        const requsername = req.cookies.username;
+        const user=await Users.findOne({username:req.cookies.username})
+        req.cookies.username.coins += (basePoints)/4;
         const bonusPoints=calculatePoints(basePoints,user);
         const leaderboardResult=await Leaderboard.findOneAndUpdate(
             { username: requsername },
@@ -352,7 +355,7 @@ server.post("/completeChallenge",auth, async (req, res) => {
         );
 
         if (leaderboardResult.points >= leaderboardResult.level *100){
-            await Leaderboard.updateOne({username:currentUserName},{ $inc:{level: 1}});
+            await Leaderboard.updateOne({username:req.cookies.username},{ $inc:{level: 1}});
         }
 
         console.log("Challenge completed! Bonus points added.");
@@ -418,7 +421,7 @@ server.get("/checkInHabit/:_id",auth, async (req, res) => {
         const basePoints = 5;
         const pointsToAdd=calculatePoints(basePoints,user);
         const leaderboardResult = await Leaderboard.findOneAndUpdate(
-            { username: currentUserName },
+            { username: req.cookies.username },
             { $inc: { points: pointsToAdd } },
             { upsert: true, new: true } 
         );
