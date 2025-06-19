@@ -1,4 +1,6 @@
 const express=require('express');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
+const dotenv = require('dotenv');
 const server=express();
 server.set('view engine','ejs')
 server.use(express.urlencoded({extended : true}));
@@ -395,12 +397,134 @@ server.get("/createHabit",auth,(req,res)=>{
     res.render("habits/createHabit");
 })
 
+
+
+dotenv.config();
+const apiKey = process.env.GEMINI_API_KEY; // Ensure you have set this in your .env file
+
+const genAI = new GoogleGenerativeAI("AIzaSyDWT7aYR7bq1SifEvdc4nyb02uY_LC9_Ps");
+const generationConfig = {
+    temperature: 0.3, // Lower temperature for more deterministic validation
+    topK: 1,
+    topP: 1,
+    maxOutputTokens: 2048,
+};
+const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+];
+
+const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash-latest", // or "gemini-pro"
+    generationConfig,
+    safetySettings
+});
+
+
+// Helper function to ask Gemini and parse a simple keyword response
+async function askGeminiSimple(promptText, expectedKeywords) {
+    try {
+        const result = await model.generateContent(promptText);
+        const response = await result.response;
+        const text = response.text().trim().toUpperCase(); // Normalize for easy checking
+
+        for (const keyword of expectedKeywords) {
+            if (text.includes(keyword.toUpperCase())) {
+                return keyword; // Return the keyword found
+            }
+        }
+        console.warn(`Gemini response did not contain expected keywords. Response: "${text}" Prompt: "${promptText}"`);
+        return "UNKNOWN_RESPONSE"; // Fallback if no keyword matched
+    } catch (error) {
+        console.error("Error calling Gemini API:", error);
+    }
+}
+
+
+
 server.post("/createHabit",auth,async(req,res)=>{
-        let data=req.body;
-        data.username=req.cookies.username;
-        let newHabit=new Habit(data);
-        await newHabit.save();
-        res.redirect('/habits');
+    const user=await Users.findOne({username:req.cookies.username});
+    const habits = await Habit.find({ username : req.cookies.username});
+    const dueHabits = habits.filter(habit => habit.isCompletedToday!=true );
+    const completedHabits = habits.filter(habit => habit.isCompletedToday ==true);
+    const habitName = req.body.title.trim();
+    const habitDescription = req.body.description.trim();
+    if (!habitName || !habitDescription) {
+        return res.render('habits/habits.ejs', {
+            habits, dueHabits, completedHabits,user, 
+            message: 'Please provide both a habit name and description.',
+            messageType: 'error'
+        });
+    }
+
+    try {
+        // --- Step 1: Validate if it's a real habit ---
+        const validationPrompt = `
+            Habit Name: "${habitName}"
+            Habit Description: "${habitDescription}"
+
+            Based on the name and description, is this a recognizable human habit, or does it seem like random, nonsensical input (e.g., just numbers, random characters, gibberish)?
+            Your entire response should be ONLY one of the following keywords:
+            - REAL_HABIT
+            - INVALID_INPUT
+        `;
+
+        console.log("Sending validation prompt to Gemini...");
+        const validationResult = await askGeminiSimple(validationPrompt, ["REAL_HABIT", "INVALID_INPUT"]);
+        console.log("Gemini validation result:", validationResult);
+
+        if (validationResult === "INVALID_INPUT" || validationResult === "UNKNOWN_RESPONSE") {
+            return res.render('habits/habits.ejs', {
+                habits, dueHabits, completedHabits,user, 
+                message: `The input "${habitName}" doesn't seem like a valid habit. Please enter a recognizable habit.`,
+                messageType: 'error'
+            });
+        }
+
+        // --- Step 2: Check if the habit is good (only if Step 1 passed) ---
+        const goodnessPrompt = `
+            Habit Name: "${habitName}"
+            Habit Description: "${habitDescription}"
+
+            Considering this habit, would it generally be considered a 'GOOD_HABIT' (beneficial, positive for well-being/productivity) or a 'BAD_HABIT' (detrimental, harmful, or generally unproductive)?
+            Ignore any moral judgments, focus on general well-being and common understanding.
+            Your entire response should be ONLY one of the following keywords:
+            - GOOD_HABIT
+            - BAD_HABIT
+        `;
+
+        console.log("Sending goodness prompt to Gemini...");
+        const goodnessResult = await askGeminiSimple(goodnessPrompt, ["GOOD_HABIT", "BAD_HABIT"]);
+        console.log("Gemini goodness result:", goodnessResult);
+
+        if (goodnessResult === "BAD_HABIT" || goodnessResult === "UNKNOWN_RESPONSE") {
+            return res.render('habits/habits.ejs', {
+                habits, dueHabits, completedHabits,user, 
+                message: `The habit "${habitName}" is generally not considered a good habit. Please focus on positive habits.`,
+                messageType: 'error'
+            });
+        }
+
+        // --- If both checks pass: Add to "Habit Model" (simulation) ---
+        if (goodnessResult === "GOOD_HABIT") {
+            console.log(`SUCCESS: Habit "${habitName}" is valid and good. Adding to model.`);
+            let data=req.body;
+            data.username=req.cookies.username;
+            let newHabit=new Habit(data);
+            await newHabit.save();
+            res.redirect('/habits');
+        }
+        
+}catch (error) {
+        console.error("Error during habit creation:", error);
+        return res.render('habits/habits.ejs', {
+            habits, dueHabits, completedHabits,user, 
+            message: 'An error occurred while creating the habit. Please try again.',
+            messageType: 'error'
+        });
+    }
 });
 
 server.get("/checkInHabit/:_id",auth, async (req, res) => {
@@ -651,7 +775,7 @@ server.post('/activatePotion/:id',auth, async (req, res) => {
 server.listen(5000,()=>{
     console.log("Server running on port 5000")
 })
-let connectionString='mongodb+srv://Fahad_Aziz200:VeFndbmK4qGVaToB@cluster0.l31sl.mongodb.net/';
+let connectionString='mongodb+srv://Fahad_Aziz200:t0qP5NGap1Es8sQR@cluster0.l31sl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 mongoose.connect(connectionString)
 .then(console.log('Successfully connected to '+connectionString))
 .catch(err=>console.log("error occured : \n"+err));

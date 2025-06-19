@@ -21,6 +21,7 @@
         textarea.green-placeholder {
             background: #2E3944;
             border: 0;
+            color: white; /* Make sure input text is also visible */
         }
 
         input.green-placeholder::placeholder,
@@ -54,10 +55,42 @@
         .card {
             word-wrap: break-word;
         }
+
+        /* Styles for the message display */
+        .page-message-container {
+            padding: 0 1rem; /* Add some horizontal padding to align with other content */
+            margin-bottom: 1rem; /* Space below the message */
+        }
+        .page-message {
+            padding: 1rem;
+            border-radius: .25rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .page-message.error {
+            background-color: #f8d7da; /* Bootstrap's danger background */
+            color: #721c24;           /* Bootstrap's danger text color */
+            border: 1px solid #f5c6cb; /* Bootstrap's danger border color */
+        }
+        .page-message.success {
+            background-color: #d4edda; /* Bootstrap's success background */
+            color: #155724;           /* Bootstrap's success text color */
+            border: 1px solid #c3e6cb; /* Bootstrap's success border color */
+        }
     </style>
 </head>
 <body>
     <%- include('../../views/partials/header') %>
+
+    <!-- =========== MESSAGE DISPLAY AREA =========== -->
+    <% if (typeof message !== 'undefined' && message) { %>
+        <div class="container-fluid page-message-container"> <%# Use container-fluid for full width responsive padding %>
+            <div class="page-message <%= messageType %>">
+                <p class="mb-0"><%= message %></p>  <%# mb-0 to remove default paragraph margin if it looks odd %>
+            </div>
+        </div>
+    <% } %>
+    <!-- ========================================== -->
 
     <section class="mb-4">
         <div class="p-3 d-flex">
@@ -73,77 +106,89 @@
                 <div class="col-lg habit-column">
                     <h4 class="text-muted fw-bold">Habits</h4>
                     <div class="commonBorderAndBackground permanentHeight">
-                        <% habits.forEach((habit) => { %>
-                            <div class="card p-2 m-3 shadow">
-                                <div class="d-flex">
-                                    <div class="ms-2 p-2">
-                                        <h4 class="text-muted"><%= habit.title %></h4>
-                                        <p class="text-muted"><%= habit.description %></p>
-                                        <p class="text-muted">Streak: <%= habit.streak %></p>
-                                        <% if (habit.lastCheckIn) { %>
+                        <% if (typeof habits !== 'undefined' && habits.length > 0) { %>
+                            <% habits.forEach((habit) => { %>
+                                <div class="card p-2 m-3 shadow">
+                                    <div class="d-flex">
+                                        <div class="ms-2 p-2">
+                                            <h4 class="text-muted"><%= habit.title %></h4>
+                                            <p class="text-muted"><%= habit.description %></p>
+                                            <p class="text-muted">Streak: <%= habit.streak %></p>
+                                            <% if (habit.lastCheckIn) { %>
+                                                <p class="text-muted">
+                                                    <img src="/images/calendar.png" alt="">
+                                                    Last Checked In: <%= new Date(habit.lastCheckIn).toISOString().split('T')[0] %>
+                                                </p>
+                                            <% } %>
                                             <p class="text-muted">
                                                 <img src="/images/calendar.png" alt="">
-                                                Last Checked In: <%= habit.lastCheckIn.split('T')[0] %>
+                                                Created At: <%= new Date(habit.createdDate).toISOString().split('T')[0] %>
                                             </p>
-                                        <% } %>
-                                        <p class="text-muted">
-                                            <img src="/images/calendar.png" alt="">
-                                            Created At: <%= habit.createdDate.toISOString().split('T')[0] %>
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <% }) %>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-center text-muted p-3">No habits yet. Add one!</p>
+                        <% } %>
                     </div>
                 </div>
                 <div class="col-lg habit-column">
                     <h4 class="text-muted fw-bold">Due Habits</h4>
                     <div class="commonBorderAndBackground permanentHeight">
-                        <% dueHabits.forEach((habit) => { %>
-                            <div class="card p-2 m-3 shadow">
-                                <div class="d-flex">
-                                    <div class="bg-light">
-                                        <a href="/removeHabit/<%=habit._id%>">
-                                            <button class="btn mt-2"><img src="/images/delete.png" alt="" width="24px"></button>
-                                        </a>
-                                        <a href="/checkinHabit/<%=habit._id%>">
-                                            <button class="btn mt-2"><img src="/images/check-mark.png" alt="" width="24px"></button>
-                                        </a>
-                                    </div>
-                                    <div class="ms-2 p-2">
-                                        <h4 class="text-muted"><%= habit.title %></h4>
-                                        <p class="text-muted"><%= habit.description %></p>
-                                        <% if (habit.lastCheckIn) { %>
-                                            <p class="text-muted">
-                                                <img src="/images/calendar.png" alt="">
-                                                Last Checked In: <%= habit.lastCheckIn.split('T')[0] %>
-                                            </p>
-                                        <% } %>
+                        <% if (typeof dueHabits !== 'undefined' && dueHabits.length > 0) { %>
+                            <% dueHabits.forEach((habit) => { %>
+                                <div class="card p-2 m-3 shadow">
+                                    <div class="d-flex">
+                                        <div class="bg-light">
+                                            <a href="/removeHabit/<%=habit._id%>">
+                                                <button class="btn mt-2"><img src="/images/delete.png" alt="" width="24px"></button>
+                                            </a>
+                                            <a href="/checkinHabit/<%=habit._id%>">
+                                                <button class="btn mt-2"><img src="/images/check-mark.png" alt="" width="24px"></button>
+                                            </a>
+                                        </div>
+                                        <div class="ms-2 p-2">
+                                            <h4 class="text-muted"><%= habit.title %></h4>
+                                            <p class="text-muted"><%= habit.description %></p>
+                                            <% if (habit.lastCheckIn) { %>
+                                                <p class="text-muted">
+                                                    <img src="/images/calendar.png" alt="">
+                                                    Last Checked In: <%= new Date(habit.lastCheckIn).toISOString().split('T')[0] %>
+                                                </p>
+                                            <% } %>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <% }) %>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-center text-muted p-3">No habits due.</p>
+                        <% } %>
                     </div>
                 </div>
                 <div class="col-lg habit-column">
                     <h4 class="text-muted fw-bold">Completed</h4>
                     <div class="commonBorderAndBackground permanentHeight">
-                        <% completedHabits.forEach((habit) => { %>
-                            <div class="card p-2 m-3 shadow">
-                                <div class="d-flex">
-                                    <div class="ms-2 p-2">
-                                        <h4 class="text-muted"><%= habit.title %></h4>
-                                        <p class="text-muted"><%= habit.description %></p>
-                                        <% if (habit.lastCheckIn) { %>
-                                            <p class="text-muted">
-                                                <img src="/images/calendar.png" alt="">
-                                                Last Checked In: <%= habit.lastCheckIn.split('T')[0] %>
-                                            </p>
-                                        <% } %>
+                         <% if (typeof completedHabits !== 'undefined' && completedHabits.length > 0) { %>
+                            <% completedHabits.forEach((habit) => { %>
+                                <div class="card p-2 m-3 shadow">
+                                    <div class="d-flex">
+                                        <div class="ms-2 p-2">
+                                            <h4 class="text-muted"><%= habit.title %></h4>
+                                            <p class="text-muted"><%= habit.description %></p>
+                                            <% if (habit.lastCheckIn) { %>
+                                                <p class="text-muted">
+                                                    <img src="/images/calendar.png" alt="">
+                                                    Last Checked In: <%= new Date(habit.lastCheckIn).toISOString().split('T')[0] %>
+                                                </p>
+                                            <% } %>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <% }) %>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-center text-muted p-3">No habits completed yet.</p>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -153,7 +198,8 @@
     <div class="modal fade" id="userFormModal" tabindex="-1" aria-labelledby="userFormModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="/createHabit" method="POST">
+                <!-- IMPORTANT: Make sure this form action matches your backend route -->
+                <form action="/createHabit" method="POST">  <!-- OR /createHabit, ensure consistency -->
                     <div class="modal-header modalGreen">
                         <h5 class="modal-title text-light" id="userFormModalLabel">Create Habit</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -161,19 +207,23 @@
                     <div class="modalGreen p-3">
                         <div class="mb-3">
                             <label for="title" class="form-label text-light">Title</label>
-                            <input type="text" class="form-control green-placeholder" id="title" name="title" required placeholder="Add a Title">
+                            <!-- In server.js, for errors, pass back `habitName` (title) and `habitDescription` (description/notes) -->
+                            <input type="text" class="form-control green-placeholder" id="title" name="title" required placeholder="Add a Title" value="<%= typeof habitName !== 'undefined' ? habitName : '' %>">
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label text-light">Description</label>
-                            <textarea name="description" class="form-control green-placeholder" id="notes" cols="5" rows="2" placeholder="Add Notes"></textarea>
+                            <textarea name="description" class="form-control green-placeholder" id="notes" cols="5" rows="2" placeholder="Add Notes"><%= typeof habitDescription !== 'undefined' ? habitDescription : '' %></textarea>
                         </div>
                     </div>
                     <div class="ms-3 me-3">
+                        <!-- Removed tags input for simplicity with previous example -->
+                        <!--
                         <div class="mb-3">
                             <label for="tags" class="form-label text-muted fw-bold">Tags:</label>
-                            <input type="text" class="form-control green-placeholder" id="Tag" name="tags" required placeholder="Add a Tag">
+                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Add a Tag (comma-separated)">
                         </div>
-                        <div class="d-grid mb-3 w-25 mx-auto">
+                        -->
+                        <div class="d-grid mb-3 mt-3 w-50 mx-auto"> <!-- Added mt-3 and w-50 for better spacing -->
                             <button type="submit" class="btn btn-success btn-block">Create</button>
                         </div>
                     </div>
@@ -183,9 +233,26 @@
     </div>
 
     <%- include('../../views/partials/footer') %>
+
+    <script>
+        // Optional: Auto-open modal if there's an error related to form submission,
+        // so the user sees their input and the error directly in the modal context.
+        // This is a more advanced UX. For simplicity, the message above the content is fine.
+
+        // <% if (typeof messageType !== 'undefined' && messageType === 'error' && (typeof habitName !== 'undefined' || typeof habitDescription !== 'undefined' )) { %>
+        //     // Only open if an error occurred AND there was form input being re-populated.
+        //     // This suggests the error is related to the form just submitted.
+        //     var userFormModal = new bootstrap.Modal(document.getElementById('userFormModal'));
+        //     userFormModal.show();
+        // <% } %>
+
+        // Fix for modal backdrop issue if you ever have multiple modals or complex interactions
+        $(document).ready(function() {
+            $('#userFormModal').on('hidden.bs.modal', function () {
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
+            });
+        });
+    </script>
 </body>
 </html>
-
-
-
-
