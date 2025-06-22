@@ -402,7 +402,7 @@ server.get("/createHabit",auth,(req,res)=>{
 dotenv.config();
 const apiKey = process.env.GEMINI_API_KEY; // Ensure you have set this in your .env file
 
-const genAI = new GoogleGenerativeAI("AIzaSyDWT7aYR7bq1SifEvdc4nyb02uY_LC9_Ps");
+const genAI = new GoogleGenerativeAI(apiKey);
 const generationConfig = {
     temperature: 0.3, // Lower temperature for more deterministic validation
     topK: 1,
