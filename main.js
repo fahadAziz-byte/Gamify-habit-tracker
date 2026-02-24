@@ -1,17 +1,17 @@
-const express=require('express');
+const express = require('express');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const dotenv = require('dotenv');
-const server=express();
-server.set('view engine','ejs')
-server.use(express.urlencoded({extended : true}));
-const Users=require('../Gamify-habit-tracker/models/usersModel');
-const Requests=require('../Gamify-habit-tracker/models/friendRequest');
-const Challenges=require('../Gamify-habit-tracker/models/challenges');
-const Potion=require('../Gamify-habit-tracker/models/Potion');
-const Habit= require('../Gamify-habit-tracker/models/habits');
-const Avatar=require('../Gamify-habit-tracker/models/avatar');
+const server = express();
+server.set('view engine', 'ejs')
+server.use(express.urlencoded({ extended: true }));
+const Users = require('../Gamify-habit-tracker/models/usersModel');
+const Requests = require('../Gamify-habit-tracker/models/friendRequest');
+const Challenges = require('../Gamify-habit-tracker/models/challenges');
+const Potion = require('../Gamify-habit-tracker/models/Potion');
+const Habit = require('../Gamify-habit-tracker/models/habits');
+const Avatar = require('../Gamify-habit-tracker/models/avatar');
 const DailyStreaks = require('../Gamify-habit-tracker/models/dailyStreaks');
-const Leaderboard=require('../Gamify-habit-tracker/models/leaderboard');
+const Leaderboard = require('../Gamify-habit-tracker/models/leaderboard');
 const { calculateCoinsForStreak } = require('./public/javascript/calculateCoins');
 const { calculatePoints } = require('./public/javascript/calculatePoints');
 const auth = require('./middleware/auth');
@@ -25,12 +25,12 @@ server.use(session({ secret: "my session secret" }));
 
 let multer = require("multer");
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${file.originalname}`);
-  },
+    destination: function (req, file, cb) {
+        cb(null, "./uploads");
+    },
+    filename: function (req, file, cb) {
+        cb(null, `${file.originalname}`);
+    },
 });
 const upload = multer({ storage: storage });
 
@@ -64,7 +64,7 @@ async function performDailyUpdates() {
 
         users.forEach(async user => {
             const currentDate = new Date();
-    
+
             user.inventory = user.inventory.filter(item => {
                 if (item.expirationDate && currentDate > item.expirationDate) {
                     console.log(`Potion with ID ${item.potionId} expired for user ${user.username}.`);
@@ -72,10 +72,10 @@ async function performDailyUpdates() {
                 }
                 return true;
             });
-    
+
             await user.save();
         });
-    
+
         console.log('Potion expiration cleanup completed!');
 
         console.log("Daily updates performed successfully.");
@@ -105,7 +105,7 @@ async function checkAndPerformDailyUpdates() {
             streakData.lastUpdateDate = today;
             await streakData.save();
         }
-        else{
+        else {
             console.log('Already performed updates today')
         }
     } catch (error) {
@@ -115,7 +115,7 @@ async function checkAndPerformDailyUpdates() {
 
 checkAndPerformDailyUpdates();
 
-server.get('/',(req,res)=>{
+server.get('/', (req, res) => {
     res.render('Registration/login');
 })
 
@@ -125,7 +125,7 @@ server.get('/',(req,res)=>{
 server.get('/home', auth, async (req, res) => {
     try {
         const user = await Users.findOne({ username: req.cookies.username });
-        currentUserName=req.cookies.username;
+        currentUserName = req.cookies.username;
         if (!user) return res.status(404).send('User not found');
         res.render('Homepage', { user });
     } catch (error) {
@@ -134,12 +134,12 @@ server.get('/home', auth, async (req, res) => {
     }
 });
 
-server.post('/signup',async(req,res)=>{
-    let data=req.body;
-    let newUser=Users(data);
+server.post('/signup', async (req, res) => {
+    let data = req.body;
+    let newUser = Users(data);
 
-    
-    
+
+
     try {
         const doesUserExistAlready = await Users.findOne({ username: newUser.username });
 
@@ -148,65 +148,65 @@ server.post('/signup',async(req,res)=>{
         }
         await newUser.save();
         res.cookie('username', newUser.username, {
-            maxAge: (3600*(1000)), 
-            httpOnly: true, 
-            secure: true,   
-            sameSite: 'Strict' 
+            maxAge: (3600 * (1000)),
+            httpOnly: true,
+            secure: true,
+            sameSite: 'Strict'
         });
-        req.cookies.username=newUser.username;
-        const user=await Users.findOne({username:req.cookies.username});
-        return res.render('Homepage',{user});
+        req.cookies.username = newUser.username;
+        const user = await Users.findOne({ username: req.cookies.username });
+        return res.render('Homepage', { user });
     } catch (error) {
         console.error("Error occurred:", error);
         return res.status(500).send('An unexpected error occurred.');
     }
 })
 
-server.post('/login',async(req,res)=>{
+server.post('/login', async (req, res) => {
     let data = req.body;
-    let isUserValid=new Users(data);
-    if(await Users.findOne({username : isUserValid.username , password : isUserValid.password})){
-        req.cookies.username=req.cookies.username;
-        
+    let isUserValid = new Users(data);
+    if (await Users.findOne({ username: isUserValid.username, password: isUserValid.password })) {
+        req.cookies.username = req.cookies.username;
+
         res.cookie('username', isUserValid.username, {
-            maxAge: 3600000, 
-            httpOnly: true, 
-            secure: true,   
-            sameSite: 'Strict' 
+            maxAge: 3600000,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'Strict'
         });
         return res.redirect('/home');
     }
     return res.render('Registration/Login', { error: 'No Such User exists' });
 })
 
-server.get('/logout',(req,res)=>{
+server.get('/logout', (req, res) => {
     res.clearCookie('username');
     res.redirect('/');
 })
 
-server.get('/friendRequests',auth,async(req,res)=>{
-    const sentRequests=await Requests.find({senderUsername : req.cookies.username});
-    const currentUser=await Users.findOne({username:req.cookies.username});
-    const receivedRequests=await Requests.find({receiverUsername : req.cookies.username});
+server.get('/friendRequests', auth, async (req, res) => {
+    const sentRequests = await Requests.find({ senderUsername: req.cookies.username });
+    const currentUser = await Users.findOne({ username: req.cookies.username });
+    const receivedRequests = await Requests.find({ receiverUsername: req.cookies.username });
     const senderUsernames = receivedRequests.map(req => req.senderUsername);
     const requestors = await Users.find({ username: { $in: senderUsernames } });
-    try{
-        
-        
-        const friendsList=await Users.find({username : {$in : currentUser.friends}});
-        const suggestedFriendsList=await Users.find({username : {$nin : currentUser.friends }});
-        res.render('friendRequests.ejs',{friendsList,suggestedFriendsList,requests:requestors,sentRequests,user:currentUser});
-    }catch(err){
-        const suggestedFriendsList=await Users.find();
-        res.render('friendRequests.ejs',{suggestedFriendsList,currentUser,requests:requestors,sentRequests,user:currentUser});
+    try {
+
+
+        const friendsList = await Users.find({ username: { $in: currentUser.friends } });
+        const suggestedFriendsList = await Users.find({ username: { $nin: currentUser.friends } });
+        res.render('friendRequests.ejs', { friendsList, suggestedFriendsList, requests: requestors, sentRequests, user: currentUser });
+    } catch (err) {
+        const suggestedFriendsList = await Users.find();
+        res.render('friendRequests.ejs', { suggestedFriendsList, currentUser, requests: requestors, sentRequests, user: currentUser });
     }
-    
+
 })
 
-server.get('/addFriend/:username/:currusername',async(req,res)=>{
+server.get('/addFriend/:username/:currusername', async (req, res) => {
     const receiverUsername = req.params['username'];
     const senderUsername = req.params['currusername'];
-    const newRequest=new Requests({
+    const newRequest = new Requests({
         senderUsername,
         receiverUsername
     })
@@ -214,7 +214,7 @@ server.get('/addFriend/:username/:currusername',async(req,res)=>{
     res.redirect('/friendRequests');
 })
 
-server.get('/confirmRequests/:senderUsername/:receiverUsername',async(req,res)=>{
+server.get('/confirmRequests/:senderUsername/:receiverUsername', async (req, res) => {
     const receiver = await Users.findOne({ username: req.params['receiverUsername'] });
     const sender = await Users.findOne({ username: req.params['senderUsername'] });
     receiver.friends.push(req.params['senderUsername']);
@@ -222,36 +222,36 @@ server.get('/confirmRequests/:senderUsername/:receiverUsername',async(req,res)=>
     await receiver.save();
     await sender.save();
     await Requests.findOneAndDelete({
-        receiverUsername : req.params['receiverUsername'],
-        senderUsername : req.params['senderUsername']
+        receiverUsername: req.params['receiverUsername'],
+        senderUsername: req.params['senderUsername']
     });
     res.redirect('/friendRequests');
 })
 
-server.get('/deleteRequest/:senderUsername/:receiverUsername',async(req,res)=>{
+server.get('/deleteRequest/:senderUsername/:receiverUsername', async (req, res) => {
     await Requests.findOneAndDelete({
-        receiverUsername : req.params['receiverUsername'],
-        senderUsername : req.params['senderUsername']
+        receiverUsername: req.params['receiverUsername'],
+        senderUsername: req.params['senderUsername']
     });
     res.redirect('/friendRequests');
 })
 
-server.get('/progress',(req,res)=>{
+server.get('/progress', (req, res) => {
     console.log(req.cookies.username);
     res.render('progressBar');
 })
 
 
 
-server.get('/createChallenge',auth,async(req,res)=>{
-    const currentUser=await Users.findOne({username:req.cookies.username});
-    const participants=await Users.find({username : {$in : currentUser.friends}});
-    res.render('createChallenge',{participants});
+server.get('/createChallenge', auth, async (req, res) => {
+    const currentUser = await Users.findOne({ username: req.cookies.username });
+    const participants = await Users.find({ username: { $in: currentUser.friends } });
+    res.render('createChallenge', { participants });
 })
 
-server.post('/createChallenge',auth, async (req, res) => {
+server.post('/createChallenge', auth, async (req, res) => {
     try {
-        const { title, description, startDate, endDate, difficulty, category, targetGoal, points, participants} = req.body;
+        const { title, description, startDate, endDate, difficulty, category, targetGoal, points, participants } = req.body;
 
         // Transform participants into objects with `username` and `status`
         const normalizedParticipants = Array.isArray(participants)
@@ -261,10 +261,10 @@ server.post('/createChallenge',auth, async (req, res) => {
         // Transform participants into objects with `username` and `status`
         const formattedParticipants = normalizedParticipants.map(participant => ({
             username: participant,
-            status: "pending", 
+            status: "pending",
         }));
 
-        let creator=req.cookies.username;
+        let creator = req.cookies.username;
 
         // Create a new challenge
         const newChallenge = new Challenges({
@@ -287,23 +287,25 @@ server.post('/createChallenge',auth, async (req, res) => {
     }
 });
 
-server.get('/Challenges',auth,async(req,res)=>{
-    const user=await Users.findOne({username:req.cookies.username});
-    res.render('Challenges',{user});
+server.get('/Challenges', auth, async (req, res) => {
+    const user = await Users.findOne({ username: req.cookies.username });
+    res.render('Challenges', { user });
 })
 
 
-server.get('/challengeRequests',auth, async (req, res) => {
+server.get('/challengeRequests', auth, async (req, res) => {
     const currentUser = await Users.findOne({ username: req.cookies.username });
     const challenges = await Challenges.find({
-        participants: { $elemMatch: { username: currentUser.username, status: "pending" }
-    }});
+        participants: {
+            $elemMatch: { username: currentUser.username, status: "pending" }
+        }
+    });
 
     res.render('challengeRequests', { challenges });
 });
 
-server.post('/acceptChallenge/:id',auth, async (req, res) => {
-    const challengeId = req.params.id;await Challenges.updateOne(
+server.post('/acceptChallenge/:id', auth, async (req, res) => {
+    const challengeId = req.params.id; await Challenges.updateOne(
         { _id: challengeId, "participants.username": req.cookies.username },
         { $set: { "participants.$.status": "accepted" } }
     );
@@ -311,7 +313,7 @@ server.post('/acceptChallenge/:id',auth, async (req, res) => {
     res.redirect('/challengeRequests');
 });
 
-server.post('/declineChallenge/:id',auth, async (req, res) => {
+server.post('/declineChallenge/:id', auth, async (req, res) => {
     const challengeId = req.params.id;
     await Challenges.updateOne(
         { _id: challengeId, "participants.username": req.cookies.username },
@@ -321,43 +323,43 @@ server.post('/declineChallenge/:id',auth, async (req, res) => {
     res.redirect('/challengeRequests');
 });
 
-server.get('/viewChallenges',auth, async (req, res) => {
+server.get('/viewChallenges', auth, async (req, res) => {
     try {
 
         const challenges = await Challenges.find({
             "participants.username": req.cookies.username,
         });
 
-        res.render('viewChallenges', { challenges, currentUsername:req.cookies.username });
+        res.render('viewChallenges', { challenges, currentUsername: req.cookies.username });
     } catch (err) {
         console.error(err);
         res.status(500).send("Failed to fetch challenges.");
     }
 });
 
-server.post("/completeChallenge",auth, async (req, res) => {
+server.post("/completeChallenge", auth, async (req, res) => {
     try {
-        const challengeId= req.body.challengeId;
+        const challengeId = req.body.challengeId;
         const basePoints = Number(req.body.points);
-        console.log('Challenge bonus points : '+basePoints);
+        console.log('Challenge bonus points : ' + basePoints);
         await Challenges.updateOne(
             { _id: challengeId, "participants.username": req.cookies.username },
             { $set: { "participants.$.status": "completed" } }
         );
 
-        
+
         const requsername = req.cookies.username;
-        const user=await Users.findOne({username:req.cookies.username})
-        req.cookies.username.coins += (basePoints)/4;
-        const bonusPoints=calculatePoints(basePoints,user);
-        const leaderboardResult=await Leaderboard.findOneAndUpdate(
+        const user = await Users.findOne({ username: req.cookies.username })
+        req.cookies.username.coins += (basePoints) / 4;
+        const bonusPoints = calculatePoints(basePoints, user);
+        const leaderboardResult = await Leaderboard.findOneAndUpdate(
             { username: requsername },
             { $inc: { points: bonusPoints } },
             { upsert: true, new: true }
         );
 
-        if (leaderboardResult.points >= leaderboardResult.level *100){
-            await Leaderboard.updateOne({username:req.cookies.username},{ $inc:{level: 1}});
+        if (leaderboardResult.points >= leaderboardResult.level * 100) {
+            await Leaderboard.updateOne({ username: req.cookies.username }, { $inc: { level: 1 } });
         }
 
         console.log("Challenge completed! Bonus points added.");
@@ -369,11 +371,11 @@ server.post("/completeChallenge",auth, async (req, res) => {
 });
 
 
-server.get("/leaderboard",auth, async (req, res) => {
+server.get("/leaderboard", auth, async (req, res) => {
     try {
         const leaderboard = await Leaderboard.find().sort({ points: -1 }).limit(10);
-        const user=await Users.findOne({username:req.cookies.username})
-        res.render("leaderboard", { leaderboard,user });
+        const user = await Users.findOne({ username: req.cookies.username })
+        res.render("leaderboard", { leaderboard, user });
     } catch (error) {
         console.error("Error fetching leaderboard:", error);
         res.status(500).send("Error loading leaderboard.");
@@ -381,19 +383,19 @@ server.get("/leaderboard",auth, async (req, res) => {
 });
 
 
-server.get('/habits',auth, async (req, res) => {
+server.get('/habits', auth, async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
     console.log(today);
-    const user=await Users.findOne({username:req.cookies.username});
-    const habits = await Habit.find({ username : req.cookies.username});
+    const user = await Users.findOne({ username: req.cookies.username });
+    const habits = await Habit.find({ username: req.cookies.username });
 
-    const dueHabits = habits.filter(habit => habit.isCompletedToday!=true );
-    const completedHabits = habits.filter(habit => habit.isCompletedToday ==true);
+    const dueHabits = habits.filter(habit => habit.isCompletedToday != true);
+    const completedHabits = habits.filter(habit => habit.isCompletedToday == true);
 
-    res.render('habits/habits', {habits, dueHabits, completedHabits,user });
+    res.render('habits/habits', { habits, dueHabits, completedHabits, user });
 });
 
-server.get("/createHabit",auth,(req,res)=>{
+server.get("/createHabit", auth, (req, res) => {
     res.render("habits/createHabit");
 })
 
@@ -444,16 +446,16 @@ async function askGeminiSimple(promptText, expectedKeywords) {
 
 
 
-server.post("/createHabit",auth,async(req,res)=>{
-    const user=await Users.findOne({username:req.cookies.username});
-    const habits = await Habit.find({ username : req.cookies.username});
-    const dueHabits = habits.filter(habit => habit.isCompletedToday!=true );
-    const completedHabits = habits.filter(habit => habit.isCompletedToday ==true);
+server.post("/createHabit", auth, async (req, res) => {
+    const user = await Users.findOne({ username: req.cookies.username });
+    const habits = await Habit.find({ username: req.cookies.username });
+    const dueHabits = habits.filter(habit => habit.isCompletedToday != true);
+    const completedHabits = habits.filter(habit => habit.isCompletedToday == true);
     const habitName = req.body.title.trim();
     const habitDescription = req.body.description.trim();
     if (!habitName || !habitDescription) {
         return res.render('habits/habits.ejs', {
-            habits, dueHabits, completedHabits,user, 
+            habits, dueHabits, completedHabits, user,
             message: 'Please provide both a habit name and description.',
             messageType: 'error'
         });
@@ -477,7 +479,7 @@ server.post("/createHabit",auth,async(req,res)=>{
 
         if (validationResult === "INVALID_INPUT" || validationResult === "UNKNOWN_RESPONSE") {
             return res.render('habits/habits.ejs', {
-                habits, dueHabits, completedHabits,user, 
+                habits, dueHabits, completedHabits, user,
                 message: `The input "${habitName}" doesn't seem like a valid habit. Please enter a recognizable habit.`,
                 messageType: 'error'
             });
@@ -501,7 +503,7 @@ server.post("/createHabit",auth,async(req,res)=>{
 
         if (goodnessResult === "BAD_HABIT" || goodnessResult === "UNKNOWN_RESPONSE") {
             return res.render('habits/habits.ejs', {
-                habits, dueHabits, completedHabits,user, 
+                habits, dueHabits, completedHabits, user,
                 message: `The habit "${habitName}" is generally not considered a good habit. Please focus on positive habits.`,
                 messageType: 'error'
             });
@@ -510,26 +512,26 @@ server.post("/createHabit",auth,async(req,res)=>{
         // --- If both checks pass: Add to "Habit Model" (simulation) ---
         if (goodnessResult === "GOOD_HABIT") {
             console.log(`SUCCESS: Habit "${habitName}" is valid and good. Adding to model.`);
-            let data=req.body;
-            data.username=req.cookies.username;
-            let newHabit=new Habit(data);
+            let data = req.body;
+            data.username = req.cookies.username;
+            let newHabit = new Habit(data);
             await newHabit.save();
             res.redirect('/habits');
         }
-        
-}catch (error) {
+
+    } catch (error) {
         console.error("Error during habit creation:", error);
         return res.render('habits/habits.ejs', {
-            habits, dueHabits, completedHabits,user, 
+            habits, dueHabits, completedHabits, user,
             message: 'An error occurred while creating the habit. Please try again.',
             messageType: 'error'
         });
     }
 });
 
-server.get("/checkInHabit/:_id",auth, async (req, res) => {
+server.get("/checkInHabit/:_id", auth, async (req, res) => {
     try {
-        
+
         const habitResult = await Habit.updateOne(
             { _id: req.params._id, isCompletedToday: false },
             {
@@ -541,22 +543,22 @@ server.get("/checkInHabit/:_id",auth, async (req, res) => {
             }
         );
 
-        const user=await Users.findOne({username:req.cookies.username});
+        const user = await Users.findOne({ username: req.cookies.username });
         const basePoints = 5;
-        const pointsToAdd=calculatePoints(basePoints,user);
+        const pointsToAdd = calculatePoints(basePoints, user);
         const leaderboardResult = await Leaderboard.findOneAndUpdate(
             { username: req.cookies.username },
             { $inc: { points: pointsToAdd } },
-            { upsert: true, new: true } 
+            { upsert: true, new: true }
         );
-        if (leaderboardResult.points >= leaderboardResult.level *100){
-            await Leaderboard.updateOne({username:req.cookies.username},{ $inc:{level: 1}});
+        if (leaderboardResult.points >= leaderboardResult.level * 100) {
+            await Leaderboard.updateOne({ username: req.cookies.username }, { $inc: { level: 1 } });
         }
 
-        let habit= await Habit.findOne({_id:req.params._id});
+        let habit = await Habit.findOne({ _id: req.params._id });
         const coins = calculateCoinsForStreak(habit.streak);
         if (coins > 0) {
-            const user = await Users.findOne({username:habit.username});
+            const user = await Users.findOne({ username: habit.username });
             user.coins += coins;
             await user.save();
         }
@@ -569,16 +571,16 @@ server.get("/checkInHabit/:_id",auth, async (req, res) => {
 });
 
 
-server.get('/removeHabit/:_id',auth,async(req,res)=>{
-    await Habit.deleteOne({ _id: req.params._id});
+server.get('/removeHabit/:_id', auth, async (req, res) => {
+    await Habit.deleteOne({ _id: req.params._id });
     res.redirect('/habits');
 })
 
-server.post('/shop/buy-avatar/:id',auth, async (req, res) => {
+server.post('/shop/buy-avatar/:id', auth, async (req, res) => {
     try {
-        const avatar = await Avatar.findOne({_id:req.params.id});
+        const avatar = await Avatar.findOne({ _id: req.params.id });
         console.log(avatar);
-        const user = await Users.findOne({username:req.cookies.username}); // Assuming req.user contains authenticated user details
+        const user = await Users.findOne({ username: req.cookies.username }); // Assuming req.user contains authenticated user details
 
         if (user.coins < avatar.cost) {
             return res.status(400).send('Not enough coins to purchase this avatar.');
@@ -597,11 +599,11 @@ server.post('/shop/buy-avatar/:id',auth, async (req, res) => {
     }
 });
 
-server.post('/shop/buy-potion/:potionId',auth, async (req, res) => {
+server.post('/shop/buy-potion/:potionId', auth, async (req, res) => {
 
     try {
-        const user = await Users.findOne({username: req.cookies.username}); // Assuming req.user contains authenticated user data
-        const potion = await Potion.findOne({_id:req.params.potionId});
+        const user = await Users.findOne({ username: req.cookies.username }); // Assuming req.user contains authenticated user data
+        const potion = await Potion.findOne({ _id: req.params.potionId });
 
         if (!potion) return res.status(404).json({ message: 'Potion not found' });
 
@@ -637,43 +639,43 @@ server.post('/shop/buy-potion/:potionId',auth, async (req, res) => {
     }
 });
 
-server.get('/admin',auth,async(req,res)=>{
-    const avatar=await Avatar.find();
-    const potion=await Potion.find();
-    const user=await Users.findOne({username: req.cookies.username});
-    res.render('admin/admin.ejs',{avatar,potion,userAvatarId:user.avatar.avatarId})
+server.get('/admin', auth, async (req, res) => {
+    const avatar = await Avatar.find();
+    const potion = await Potion.find();
+    const user = await Users.findOne({ username: req.cookies.username });
+    res.render('admin/admin.ejs', { avatar, potion, userAvatarId: user.avatar.avatarId })
 })
 
-server.get('/createPotion',auth,async(req,res)=>{
+server.get('/createPotion', auth, async (req, res) => {
     res.render('admin/newPotionForm.ejs');
 })
 
-server.post('/createPotion',upload.single("file"),async (req, res) => {
+server.post('/createPotion', upload.single("file"), async (req, res) => {
     let data = {
         name: req.body.name,
         effectType: req.body.effectType,
-        duration: Number(req.body.duration), 
-        cost: Number(req.body.cost), 
+        duration: Number(req.body.duration),
+        cost: Number(req.body.cost),
         description: req.body.description,
-        imageURL: req.file ? req.file.filename : req.body.imageURL 
+        imageURL: req.file ? req.file.filename : req.body.imageURL
     };
-    let newPotion= new Potion(data);
+    let newPotion = new Potion(data);
     await newPotion.save();
     res.redirect('/admin');
 })
 
-server.get('/editAvatar/:id',auth,async(req,res)=>{
-    const avatar=await Avatar.findOne({_id:req.params.id});
-    res.render('admin/editAvatarForm',{avatar,avatarId:req.params.id});
+server.get('/editAvatar/:id', auth, async (req, res) => {
+    const avatar = await Avatar.findOne({ _id: req.params.id });
+    res.render('admin/editAvatarForm', { avatar, avatarId: req.params.id });
 })
 
-server.get('/deleteAvatar/:id',auth,async(req,res)=>{
-    await Avatar.deleteOne({_id:req.params.id});
+server.get('/deleteAvatar/:id', auth, async (req, res) => {
+    await Avatar.deleteOne({ _id: req.params.id });
     res.redirect('/admin');
 });
 
-server.post('/editAvatar/:id',upload.single("file"),auth,async(req,res)=>{
-    const avatar=await Avatar.findOne({_id:req.params.id});
+server.post('/editAvatar/:id', upload.single("file"), auth, async (req, res) => {
+    const avatar = await Avatar.findOne({ _id: req.params.id });
     let data = req.body;
     avatar.name = data.name;
     avatar.cost = data.cost;
@@ -685,13 +687,13 @@ server.post('/editAvatar/:id',upload.single("file"),auth,async(req,res)=>{
     res.redirect('/admin');
 })
 
-server.get('/createAvatar',(req,res)=>{
+server.get('/createAvatar', (req, res) => {
     res.render('admin/newAvatarForm.ejs');
 })
 
-server.post('/createAvatar',upload.single("file"),async (req, res) => {
+server.post('/createAvatar', upload.single("file"), async (req, res) => {
     let data = req.body;
-    let newAvatar= new Avatar(data);
+    let newAvatar = new Avatar(data);
     if (req.file) {
         newAvatar.imageURL = req.file.filename;
     }
@@ -699,17 +701,17 @@ server.post('/createAvatar',upload.single("file"),async (req, res) => {
     res.redirect('/admin');
 })
 
-server.get('/shop',auth, async (req, res) => {
+server.get('/shop', auth, async (req, res) => {
     let avatars = await Avatar.find();
     const user = await Users.findOne({ username: req.cookies.username });
     let userAvatar = null;
 
     const allPotions = await Potion.find();
 
-        // Extract potion IDs from the user's inventory
+    // Extract potion IDs from the user's inventory
     const purchasedPotionIds = user.inventory.map(item => item.potionId.toString());
 
-        // Categorize potions
+    // Categorize potions
     const purchasedPotions = allPotions.filter(potion => purchasedPotionIds.includes(potion._id.toString()));
     const notPurchasedPotions = allPotions.filter(potion => !purchasedPotionIds.includes(potion._id.toString()));
 
@@ -718,10 +720,10 @@ server.get('/shop',auth, async (req, res) => {
         userAvatar = await Avatar.findOne({ _id: user.avatar.avatarId });
     }
 
-    res.render('shop', { purchasedPotions,notPurchasedPotions, avatars, user, userAvatar });
+    res.render('shop', { purchasedPotions, notPurchasedPotions, avatars, user, userAvatar });
 });
 
-server.get('/inventory',auth, async (req, res) => {
+server.get('/inventory', auth, async (req, res) => {
     const user = await Users.findOne({ username: req.cookies.username });
     const currentDate = new Date();
 
@@ -741,12 +743,12 @@ server.get('/inventory',auth, async (req, res) => {
     }
 
     await user.save();
-    res.render('inventory', {userAvatar,user, potions: user.inventory });
+    res.render('inventory', { userAvatar, user, potions: user.inventory });
 });
 
 
 
-server.post('/activatePotion/:id',auth, async (req, res) => {
+server.post('/activatePotion/:id', auth, async (req, res) => {
     const user = await Users.findOne({ username: req.cookies.username });
     const potionId = req.params.id;
 
@@ -772,10 +774,10 @@ server.post('/activatePotion/:id',auth, async (req, res) => {
 
 
 
-server.listen(5000,()=>{
+server.listen(5000, () => {
     console.log("Server running on port 5000")
 })
-let connectionString='mongodb+srv://Fahad_Aziz200:t0qP5NGap1Es8sQR@cluster0.l31sl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+let connectionString = process.env.MONGO_URI;
 mongoose.connect(connectionString)
-.then(console.log('Successfully connected to '+connectionString))
-.catch(err=>console.log("error occured : \n"+err));
+    .then(() => console.log('Successfully connected to MongoDB'))
+    .catch(err => console.log("error occured : \n" + err));
