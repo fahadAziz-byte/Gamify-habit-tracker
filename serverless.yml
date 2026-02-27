@@ -2,7 +2,7 @@ service: my-mern-app   # Change this to your project name (no spaces)
 
 provider:
   name: aws
-  runtime: nodejs18.x  # Check your version with "node -v", use 18 or 20
+  runtime: nodejs20.x  # Check your version with "node -v", use 18 or 20
   region: us-east-1
   memorySize: 512       # 512MB RAM for your function
   timeout: 15           # 15 seconds max per request
