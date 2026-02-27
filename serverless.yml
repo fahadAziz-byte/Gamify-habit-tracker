@@ -8,8 +8,8 @@ provider:
   timeout: 15           # 15 seconds max per request
   environment:
     # Copy ALL your .env variables here manually
-    GEMINI_API_KEY: "AIzaSyDWT7aYR7bq1SifEvdc4nyb02uY_LC9_Ps"
-    MONGO_URI: "mongodb+srv://fahadaziz714:fproahadmotion@cluster0.zggk30s.mongodb.net/?appName=Cluster0"
+    MONGO_URI: ${env:MONGO_URI}           
+    GEMINI_API_KEY: ${env:GEMINI_API_KEY}
     # Add any other variables your app needs
     # NODE_ENV: "production"
 
