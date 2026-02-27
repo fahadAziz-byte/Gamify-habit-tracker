@@ -30,10 +30,10 @@
     </style>
 </head>
 <body>
-    <a href="/admin"><button class="btn btn-info" type="submit">Go Back</button></a>
+    <a href="admin"><button class="btn btn-info" type="submit">Go Back</button></a>
     <div class="form-container">
         <h2>Edit Avatar ( <%=avatar.name%> )</h2>
-        <form action="/editAvatar/<%=avatar._id%>" method="post" enctype="multipart/form-data">
+        <form action="editAvatar/<%=avatar._id%>" method="post" enctype="multipart/form-data">
             <div class="form-group mb-3">
                 <label for="titleInput" class="form-label">Name</label>
                 <input name="name" type="text" class="form-control" id="titleInput" aria-describedby="titleHelp" placeholder="Enter Avatar Title" required value="<%=avatar.name%>" />

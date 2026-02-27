@@ -33,7 +33,7 @@
 </head>
 <body>
     <div class="text-center">
-        <a href="/home" class="btn btn-primary">Back to HomePage</a>
+        <a href="home" class="btn btn-primary">Back to HomePage</a>
     </div>
     <div class="container">
         <h1 class="text-center">Avatars</h1>
@@ -57,7 +57,7 @@
                         <td>
                             <a href="editAvatar/<%= avatar[index]._id%>"><button class="btn btn-secondary">Edit</button></a>
                             <% if(!(String(avatar[index]._id) === String(userAvatarId))){%>
-                                <a href="/deleteAvatar/<%= avatar[index]._id%>"><button class="btn btn-danger">Delete</button></a>
+                                <a href="deleteAvatar/<%= avatar[index]._id%>"><button class="btn btn-danger">Delete</button></a>
                             <% } %>
                         </td>
                     </tr>
@@ -65,7 +65,7 @@
             </tbody>
         </table>
         <div class="text-center">
-            <a href="/createAvatar" class="btn btn-primary">Create New Avatar</a>
+            <a href="createAvatar" class="btn btn-primary">Create New Avatar</a>
         </div>
 
         <h1 class="text-center">Potions</h1>
@@ -90,7 +90,7 @@
             </tbody>
         </table>
         <div class="text-center">
-            <a href="/createPotion" class="btn btn-primary">Create New Potion</a>
+            <a href="createPotion" class="btn btn-primary">Create New Potion</a>
         </div>
     </div>
     <!-- Include Bootstrap JS -->

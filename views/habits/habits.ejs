@@ -141,10 +141,10 @@
                                 <div class="card p-2 m-3 shadow">
                                     <div class="d-flex">
                                         <div class="bg-light">
-                                            <a href="/removeHabit/<%=habit._id%>">
+                                            <a href="removeHabit/<%=habit._id%>">
                                                 <button class="btn mt-2"><img src="/images/delete.png" alt="" width="24px"></button>
                                             </a>
-                                            <a href="/checkinHabit/<%=habit._id%>">
+                                            <a href="checkinHabit/<%=habit._id%>">
                                                 <button class="btn mt-2"><img src="/images/check-mark.png" alt="" width="24px"></button>
                                             </a>
                                         </div>
@@ -199,7 +199,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <!-- IMPORTANT: Make sure this form action matches your backend route -->
-                <form action="/createHabit" method="POST">  <!-- OR /createHabit, ensure consistency -->
+                <form action="createHabit" method="POST">  <!-- OR /createHabit, ensure consistency -->
                     <div class="modal-header modalGreen">
                         <h5 class="modal-title text-light" id="userFormModalLabel">Create Habit</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

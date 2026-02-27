@@ -60,8 +60,8 @@
                                     </a>
                                 </h5>
                                 <% if (requests[index].username && user.username) { %>
-                                    <a href="/confirmRequests/<%= requests[index].username %>/<%= user.username %>" class="btn btn-primary">Confirm</a>
-                                    <a href="/deleteRequest/<%= requests[index].username %>/<%= user.username %>" class="btn btn-warning">Delete</a>
+                                    <a href="confirmRequests/<%= requests[index].username %>/<%= user.username %>" class="btn btn-primary">Confirm</a>
+                                    <a href="deleteRequest/<%= requests[index].username %>/<%= user.username %>" class="btn btn-warning">Delete</a>
                                 <% } else { %>
                                     <p>Invalid request data</p>
                                 <% } %>
@@ -156,7 +156,7 @@
                                     <% if(sentRequests.find((element)=>element.receiverUsername === suggestedFriendsList[index].username)){ %>
                                         <a href="" class="btn btn-light" style="border: 3px solid rgb(61, 61, 198)">Request Sent</a>
                                     <% } else {%>
-                                        <a href="/addFriend/<%= suggestedFriendsList[index].username %>/<%= user.username %>" class="btn btn-primary">Add Friend</a>
+                                        <a href="addFriend/<%= suggestedFriendsList[index].username %>/<%= user.username %>" class="btn btn-primary">Add Friend</a>
                                     <% } %>
                                 </div>
                             </div>

@@ -107,7 +107,7 @@
                     <div class="card-footer">
                         <span>Challenged by: <%= challenge.creator %></span>
                         <span>Ends on: <%= new Date(challenge.endDate).toLocaleDateString() %></span>
-                        <form action="/completeChallenge" method="POST" style="margin:0;">
+                        <form action="completeChallenge" method="POST" style="margin:0;">
                             <input type="hidden" name="challengeId" value="<%= challenge._id %>">
                             <input type="hidden" name="points" value="<%= challenge.points %>">
                             <button type="submit" class="btn-complete">Complete Challenge</button>

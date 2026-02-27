@@ -164,7 +164,7 @@
                         <% if (purchasedPotions.some(p => p._id.toString() === potion._id.toString())) { %>
                             <button class="btn btn-secondary" disabled>Already Bought</button>
                         <% } else { %>
-                            <form action="/shop/buy-potion/<%= potion._id %>" method="POST">
+                            <form action="shop/buy-potion/<%= potion._id %>" method="POST">
                                 <% if (user.coins < potion.cost) { %>
                                 <button type="submit" class="btn btn-secondary" disabled>Not enough coins</button>
                                 <% } else { %>
@@ -185,7 +185,7 @@
                         <h4><%= avatar.name %></h4>
                         <p class="description"><%= avatar.description %></p>
                         <div class="cost"><%= avatar.cost %> 🪙</div>
-                        <form action="/shop/buy-avatar/<%= avatar._id %>" method="POST">
+                        <form action="shop/buy-avatar/<%= avatar._id %>" method="POST">
                             <% if (user.coins < avatar.cost || String(user.avatar.avatarId) === String(avatar._id)) { %>
                             <button type="submit" class="btn btn-secondary" disabled>
                                 <%= String(user.avatar.avatarId) === String(avatar._id) ? "Already Bought" : "Not enough coins" %>
