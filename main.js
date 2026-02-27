@@ -20,7 +20,7 @@ import Leaderboard from './models/leaderboard.js';
 import calculateCoinsForStreak from './public/javascript/calculateCoins.js';
 import calculatePoints from './public/javascript/calculatePoints.js';
 import auth from './middleware/auth.js';
-
+import cors from 'cors';
 dotenv.config();
 const server = express();
 
@@ -53,6 +53,14 @@ server.use(async (req, res, next) => {
         res.status(500).json({ error: "Database connection failed" });
     }
 });
+
+
+server.use(cors({
+    origin: '*',  // For now allow all, we'll restrict later
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+server.options('*', cors());
 
 
 import multer from 'multer';
