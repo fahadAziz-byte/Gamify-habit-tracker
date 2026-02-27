@@ -156,7 +156,7 @@
                 <div class="items-grid" id="potionsGrid">
                     <% purchasedPotions.concat(notPurchasedPotions).forEach(potion => { %>
                     <div class="item-card potion">
-                        <img src="/<%= potion.imageURL %>" alt="<%= potion.name %>" class="img-fluid">
+                        <img src="<%= potion.imageURL %>" alt="<%= potion.name %>" class="img-fluid">
                         <h4><%= potion.name %></h4>
                         <p class="description"><%= potion.description %></p>
                         <div class="duration">Duration: <%= potion.duration %> days</div>
@@ -181,7 +181,7 @@
                 <div class="items-grid" id="avatarsGrid">
                     <% avatars.forEach(avatar => { %>
                     <div class="item-card avatar">
-                        <img src="/<%= avatar.imageURL %>" alt="<%= avatar.name %>" class="img-fluid">
+                        <img src="<%= avatar.imageURL %>" alt="<%= avatar.name %>" class="img-fluid">
                         <h4><%= avatar.name %></h4>
                         <p class="description"><%= avatar.description %></p>
                         <div class="cost"><%= avatar.cost %> 🪙</div>

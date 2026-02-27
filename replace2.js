@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'fs';
+import path from 'path';
 
 function walk(dir) {
     let results = [];
@@ -22,10 +22,8 @@ let changeCount = 0;
 files.forEach(file => {
     let content = fs.readFileSync(file, 'utf8');
 
-    // Replace href="/something" with href="something"
-    let updated = content.replace(/href="\//g, 'href="');
-    // Replace action="/something" with action="something"
-    updated = updated.replace(/action="\//g, 'action="');
+    // Replace src="/<%= something %>" with src="<%= something %>"
+    let updated = content.replace(/src="\/\<%=/g, 'src="<%=');
 
     if (content !== updated) {
         fs.writeFileSync(file, updated);

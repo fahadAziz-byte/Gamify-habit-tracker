@@ -212,7 +212,7 @@
 
                         if(potion.activatedAt){ %>
                             <div class="item-card">
-                                <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
+                                <img class="item-image" src="<%= potion.imageURL %>" alt="<%= potion.name %>">
                                 <h3><%= potion.name %></h3>
                                 <p><%= potion.description %></p>
                                 <p>Expires At: <%= potion.expirationDate.toISOString().slice(0, 16).replace('T', ' ') %></p>
@@ -223,7 +223,7 @@
                             </div>
                         <% }else{ %>
                             <div class="item-card">
-                                <img class="item-image" src="/<%= potion.imageURL %>" alt="<%= potion.name %>">
+                                <img class="item-image" src="<%= potion.imageURL %>" alt="<%= potion.name %>">
                                 <h3><%= potion.name %></h3>
                                 <p><%= potion.description %></p>
                                 <p>Cost: <%= potion.cost %> coins</p>

@@ -85,16 +85,7 @@ server.use(async (req, res, next) => {
 });
 
 
-import multer from 'multer';
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "./uploads");
-    },
-    filename: function (req, file, cb) {
-        cb(null, `${file.originalname}`);
-    },
-});
-const upload = multer({ storage: storage });
+import { uploadCloudinary as upload } from './config/cloudinary.js';
 
 async function performDailyUpdates() {
     try {
@@ -719,7 +710,7 @@ server.post('/createPotion', upload.single("file"), async (req, res) => {
         duration: Number(req.body.duration),
         cost: Number(req.body.cost),
         description: req.body.description,
-        imageURL: req.file ? req.file.filename : req.body.imageURL
+        imageURL: req.file ? req.file.path : req.body.imageURL
     };
     let newPotion = new Potion(data);
     await newPotion.save();
@@ -743,7 +734,7 @@ server.post('/editAvatar/:id', upload.single("file"), auth, async (req, res) => 
     avatar.cost = data.cost;
     avatar.description = data.description;
     if (req.file) {
-        avatar.imageURL = req.file.filename;
+        avatar.imageURL = req.file.path;
     }
     await avatar.save();
     res.redirect('/admin');
@@ -757,7 +748,7 @@ server.post('/createAvatar', upload.single("file"), async (req, res) => {
     let data = req.body;
     let newAvatar = new Avatar(data);
     if (req.file) {
-        newAvatar.imageURL = req.file.filename;
+        newAvatar.imageURL = req.file.path;
     }
     await newAvatar.save();
     res.redirect('/admin');

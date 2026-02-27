@@ -7,9 +7,11 @@ provider:
   memorySize: 512       # 512MB RAM for your function
   timeout: 15           # 15 seconds max per request
   environment:
-    # Copy ALL your .env variables here manually
     MONGO_URI: ${env:MONGO_URI}
     GEMINI_API_KEY: ${env:GEMINI_API_KEY}
+    CLOUDINARY_CLOUD_NAME: ${env:CLOUDINARY_CLOUD_NAME}
+    CLOUDINARY_API_KEY: ${env:CLOUDINARY_API_KEY}
+    CLOUDINARY_API_SECRET: ${env:CLOUDINARY_API_SECRET}
     # Add any other variables your app needs
     # NODE_ENV: "production"
 
