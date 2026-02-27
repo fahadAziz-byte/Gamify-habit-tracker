@@ -1,7 +1,7 @@
-module.exports = async function(req, res, next) {
+export default async function (req, res, next) {
     const username = req.cookies.username;
     if (username) {
-        next(); 
+        next();
     } else {
         res.redirect('/');
     }

@@ -1,20 +1,20 @@
-const mongoose=require('mongoose');
+import mongoose from 'mongoose';
 
-let requestSchema=mongoose.Schema({
-    senderUsername:{
-        type:String,
-        required:true
+let requestSchema = mongoose.Schema({
+    senderUsername: {
+        type: String,
+        required: true
     },
-    receiverUsername:{
-        type:String,
-        required:true
+    receiverUsername: {
+        type: String,
+        required: true
     },
-    Date:{
-        type:Date,
-        default:Date.now()
+    Date: {
+        type: Date,
+        default: Date.now()
     }
 })
 
-let requests=mongoose.model("Requests",requestSchema);
+let requests = mongoose.model("Requests", requestSchema);
 
-module.exports=requests;
+export default requests;

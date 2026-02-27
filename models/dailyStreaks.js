@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const dailyStreaksSchema = new mongoose.Schema({
     lastUpdateDate: {
@@ -9,4 +9,4 @@ const dailyStreaksSchema = new mongoose.Schema({
 
 const DailyStreaks = mongoose.model("DailyStreaks", dailyStreaksSchema);
 
-module.exports = DailyStreaks;
+export default DailyStreaks;

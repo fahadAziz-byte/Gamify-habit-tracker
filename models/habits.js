@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 
 const HabitSchema = new mongoose.Schema({
@@ -8,7 +8,7 @@ const HabitSchema = new mongoose.Schema({
     createdDate: { type: Date, default: Date.now },
     lastCheckIn: { type: String, default: null },
     streak: { type: Number, default: 0 },
-    tags:{type: String},
+    tags: { type: String },
     isCompletedToday: { type: Boolean, default: false },
 });
 
@@ -68,4 +68,4 @@ async function insertSampleHabits() {
 }
 
 // Export the Model and the Data Insertion Function
-module.exports = Habit;
+export default Habit;

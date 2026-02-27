@@ -1,7 +1,7 @@
 function calculatePoints(basePoints, user) {
     let finalPoints = basePoints;
 
-    
+
     user.inventory.forEach((potion) => {
         if (potion.activatedAt) {
             const activationDate = new Date(potion.activatedAt);
@@ -10,9 +10,9 @@ function calculatePoints(basePoints, user) {
 
             if (new Date() <= expiryDate) {
                 if (potion.effectType === 'habitMultiplier') {
-                    finalPoints *= 2; 
+                    finalPoints *= 2;
                 } else if (potion.effectType === 'challengeMultiplier') {
-                    finalPoints *= 1.5; 
+                    finalPoints *= 1.5;
                 }
             }
         }
@@ -21,4 +21,4 @@ function calculatePoints(basePoints, user) {
     return finalPoints;
 }
 
-module.exports = { calculatePoints };
+export default calculatePoints;

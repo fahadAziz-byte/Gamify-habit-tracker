@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const potionSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -9,4 +9,4 @@ const potionSchema = new mongoose.Schema({
     imageURL: { type: String, required: true },
 });
 
-module.exports = mongoose.model('Potion', potionSchema);
+export default mongoose.model('Potion', potionSchema);

@@ -1,29 +1,49 @@
-const serverless = require('serverless-http');
-const express = require('express');
-const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
-const dotenv = require('dotenv');
+import serverless from 'serverless-http';
+import express from 'express';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// 2. INTERNAL IMPORTS (Added .js extensions - required for ES Modules)
 import connectDB from './db.js';
+import Users from './models/usersModel.js';
+import Requests from './models/friendRequest.js';
+import Challenges from './models/challenges.js';
+import Potion from './models/Potion.js';
+import Habit from './models/habits.js';
+import Avatar from './models/avatar.js';
+import DailyStreaks from './models/dailyStreaks.js';
+import Leaderboard from './models/leaderboard.js';
+import calculateCoinsForStreak from './public/javascript/calculateCoins.js';
+import calculatePoints from './public/javascript/calculatePoints.js';
+import auth from './middleware/auth.js';
+
+dotenv.config();
 const server = express();
-server.set('view engine', 'ejs')
+
+// Fix for __dirname in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 3. SETTINGS
+server.set('view engine', 'ejs');
 server.use(express.urlencoded({ extended: true }));
-const Users = require('../Gamify-habit-tracker/models/usersModel');
-const Requests = require('../Gamify-habit-tracker/models/friendRequest');
-const Challenges = require('../Gamify-habit-tracker/models/challenges');
-const Potion = require('../Gamify-habit-tracker/models/Potion');
-const Habit = require('../Gamify-habit-tracker/models/habits');
-const Avatar = require('../Gamify-habit-tracker/models/avatar');
-const DailyStreaks = require('../Gamify-habit-tracker/models/dailyStreaks');
-const Leaderboard = require('../Gamify-habit-tracker/models/leaderboard');
-const { calculateCoinsForStreak } = require('./public/javascript/calculateCoins');
-const { calculatePoints } = require('./public/javascript/calculatePoints');
-const auth = require('./middleware/auth');
-const mongoose = require('mongoose');
-let cookieParser = require("cookie-parser");
-let session = require("express-session");
+server.use(express.json());
+server.use(cookieParser());
+
+// WARNING: express-session in memory will NOT work perfectly on Lambda. 
+// For now, this is okay for testing, but eventually, you should use MongoDB store for sessions.
+server.use(session({
+    secret: "my session secret",
+    resave: false,
+    saveUninitialized: false
+}));
+
 server.use(express.static('public'));
 server.use(express.static('uploads'));
-server.use(cookieParser());
-server.use(session({ secret: "my session secret" }));
 
 server.use(async (req, res, next) => {
     try {
@@ -35,8 +55,7 @@ server.use(async (req, res, next) => {
 });
 
 
-
-let multer = require("multer");
+import multer from 'multer';
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "./uploads");
@@ -100,6 +119,7 @@ async function performDailyUpdates() {
 
 async function checkAndPerformDailyUpdates() {
     try {
+        await connectDB();
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -126,7 +146,7 @@ async function checkAndPerformDailyUpdates() {
     }
 }
 
-checkAndPerformDailyUpdates();
+
 
 server.get('/', (req, res) => {
     res.render('Registration/login');
@@ -784,7 +804,7 @@ server.post('/activatePotion/:id', auth, async (req, res) => {
     }
 });
 
-app.get('/debug', (req, res) => {
+server.get('/debug', (req, res) => {
     res.json({
         status: 'Lambda is working',
         node: process.version,
@@ -795,17 +815,24 @@ app.get('/debug', (req, res) => {
 });
 
 
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    const PORT = 3000;
 
-
-if (require.main === module) {
-    // This runs when you do "node main.js" on your laptop
-    server.listen(3000, () => console.log('Local server running on port 3000'));
+    // Connect to DB FIRST, then start the server
+    connectDB().then(async () => {
+        await checkAndPerformDailyUpdates();
+        server.listen(PORT, () => {
+            console.log(`✅ Database Connected & Local server running at http://localhost:${PORT}`);
+        });
+    }).catch(err => {
+        console.error("Failed to connect to DB at startup:", err);
+    });
 }
 
 const serverlessHandler = serverless(server);
 
 // This is the actual function AWS Lambda calls
-module.exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
 
     // --- THIS IS POINT 3 ---
     // We tell AWS: "Don't wait for the MongoDB connection to close."
@@ -816,18 +843,4 @@ module.exports.handler = async (event, context) => {
     const result = await serverlessHandler(event, context);
 
     return result;
-};
-let isConnected = false;
-const connectDB = async () => {
-    if (isConnected) {
-        console.log("DB already connected, reusing connection");
-        return;
-    }
-    try {
-        const db = await mongoose.connect(process.env.MONGO_URI);
-        isConnected = db.connections[0].readyState;
-        console.log("MongoDB Connected!");
-    } catch (error) {
-        console.error("DB Connection Error:", error);
-    }
 };

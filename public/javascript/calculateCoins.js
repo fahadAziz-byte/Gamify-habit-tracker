@@ -12,4 +12,4 @@ function calculateCoinsForStreak(streak) {
     return 0; // No reward for streaks less than 10 days
 }
 
-module.exports = { calculateCoinsForStreak };
+export default calculateCoinsForStreak;

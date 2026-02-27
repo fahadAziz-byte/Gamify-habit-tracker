@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const challengeSchema = mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    duration: { 
-        type: Number, 
-        default: function() {
+    duration: {
+        type: Number,
+        default: function () {
             const diffInMs = this.endDate - this.startDate;
             return Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
         }
@@ -25,4 +25,4 @@ const challengeSchema = mongoose.Schema({
 
 const Challenges = mongoose.model("Challenge", challengeSchema);
 
-module.exports = Challenges;
+export default Challenges;
