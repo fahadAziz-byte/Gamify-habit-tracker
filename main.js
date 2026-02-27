@@ -28,6 +28,26 @@ const server = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Middleware to fix relative redirects on AWS API Gateway
+server.use((req, res, next) => {
+    const originalRedirect = res.redirect;
+    res.redirect = function (status, url) {
+        let redirectUrl = url || status;
+        let statusCode = typeof status === 'number' ? status : 302;
+
+        // serverless-http attaches apiGateway to the req object
+        if (req.apiGateway && req.apiGateway.event && req.apiGateway.event.requestContext && req.apiGateway.event.requestContext.stage) {
+            const stage = req.apiGateway.event.requestContext.stage;
+            if (typeof redirectUrl === 'string' && redirectUrl.startsWith('/') && !redirectUrl.startsWith(`/${stage}`)) {
+                redirectUrl = `/${stage}${redirectUrl}`;
+            }
+        }
+
+        return originalRedirect.call(this, statusCode, redirectUrl);
+    };
+    next();
+});
+
 server.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

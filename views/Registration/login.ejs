@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Slide Navbar</title>
   <link rel="stylesheet" type="text/css" href="slide navbar style.css">
@@ -96,15 +97,15 @@
     transform: scale(.6);
   }
 
-  #chk:checked ~ .login {
+  #chk:checked~.login {
     transform: translateY(-500px);
   }
 
-  #chk:checked ~ .login label {
+  #chk:checked~.login label {
     transform: scale(1);
   }
 
-  #chk:checked ~ .signup label {
+  #chk:checked~.signup label {
     transform: scale(.6);
   }
 
@@ -114,42 +115,43 @@
     font-size: 20px;
     display: none;
   }
-  
+
   /* Style to display error message when set */
   #errorMessage.show {
     display: block;
   }
-
 </style>
 
 <body>
-  <div class="main">  
+  <div class="main">
     <input type="checkbox" id="chk" aria-hidden="true">
     <% if (locals.error) { %>
-      <h1 id="errorMessage" class="show" style="text-align: center;"><%= error %></h1>
-    <% } %>
-    
-    <p id="passwordError" style="color: red; font-size: 14px; display: none;"></p>
-    
-    <div class="signup">
-      <form action="/signup" method="post" >
-        <label for="chk" aria-hidden="true">Sign up</label>
-        <input type="text" name="username" placeholder="User name" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <input type="text" name="phonenumber" placeholder="Phone Number" required>
-        <button>Sign up</button>
-      </form>
-    </div>
+      <h1 id="errorMessage" class="show" style="text-align: center;">
+        <%= error %>
+      </h1>
+      <% } %>
 
-    <div class="login">
-      <form action="/login" method="post">
-        <label for="chk" aria-hidden="true">Login</label>
-        <input type="username" name="username" placeholder="UserName" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button>Login</button>
-      </form>
-    </div>
+        <p id="passwordError" style="color: red; font-size: 14px; display: none;"></p>
+
+        <div class="signup">
+          <form action="signup" method="post">
+            <label for="chk" aria-hidden="true">Sign up</label>
+            <input type="text" name="username" placeholder="User name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="text" name="phonenumber" placeholder="Phone Number" required>
+            <button>Sign up</button>
+          </form>
+        </div>
+
+        <div class="login">
+          <form action="login" method="post">
+            <label for="chk" aria-hidden="true">Login</label>
+            <input type="username" name="username" placeholder="UserName" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button>Login</button>
+          </form>
+        </div>
   </div>
 
   <script>
