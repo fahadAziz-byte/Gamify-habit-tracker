@@ -816,11 +816,11 @@ server.post('/activatePotion/:id', auth, async (req, res) => {
 
 server.get('/debug', (req, res) => {
     res.json({
-        status: 'Lambda is working',
-        node: process.version,
-        mongo_uri_exists: !!process.env.MONGO_URI,
-        gemini_key_exists: !!process.env.GEMINI_API_KEY,
-        time: new Date().toISOString()
+        status: 'working',
+        session: req.session,
+        cookies: req.cookies,
+        headers: req.headers,
+        mongoUri: !!process.env.MONGO_URI
     });
 });
 
