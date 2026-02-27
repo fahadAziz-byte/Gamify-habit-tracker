@@ -1,0 +1,38 @@
+name: Deploy to AWS Lambda
+
+# This runs automatically when you push to main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest   # GitHub gives you a free Linux computer to run this
+
+    steps:
+      # Step 1: Download your code onto GitHub's computer
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 3: Install your project dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Install Serverless v3
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      # Step 5: Deploy to AWS (uses the secrets you added in Step 2)
+      - name: Deploy to AWS
+        run: serverless deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

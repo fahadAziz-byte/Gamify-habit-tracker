@@ -1,6 +1,8 @@
+const serverless = require('serverless-http');
 const express = require('express');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const dotenv = require('dotenv');
+import connectDB from './db.js';
 const server = express();
 server.set('view engine', 'ejs')
 server.use(express.urlencoded({ extended: true }));
@@ -22,6 +24,17 @@ server.use(express.static('public'));
 server.use(express.static('uploads'));
 server.use(cookieParser());
 server.use(session({ secret: "my session secret" }));
+
+server.use(async (req, res, next) => {
+    try {
+        await connectDB(); // Ensures DB is ready before hitting routes
+        next();
+    } catch (err) {
+        res.status(500).json({ error: "Database connection failed" });
+    }
+});
+
+
 
 let multer = require("multer");
 const storage = multer.diskStorage({
@@ -155,7 +168,7 @@ server.post('/signup', async (req, res) => {
         });
         req.cookies.username = newUser.username;
         const user = await Users.findOne({ username: req.cookies.username });
-        return res.render('Homepage', { user });
+        return res.redirect('/home');
     } catch (error) {
         console.error("Error occurred:", error);
         return res.status(500).send('An unexpected error occurred.');
@@ -774,10 +787,37 @@ server.post('/activatePotion/:id', auth, async (req, res) => {
 
 
 
-server.listen(5000, () => {
-    console.log("Server running on port 5000")
-})
-let connectionString = process.env.MONGO_URI;
-mongoose.connect(connectionString)
-    .then(() => console.log('Successfully connected to MongoDB'))
-    .catch(err => console.log("error occured : \n" + err));
+if (require.main === module) {
+    // This runs when you do "node main.js" on your laptop
+    server.listen(3000, () => console.log('Local server running on port 3000'));
+}
+
+const serverlessHandler = serverless(server);
+
+// This is the actual function AWS Lambda calls
+module.exports.handler = async (event, context) => {
+
+    // --- THIS IS POINT 3 ---
+    // We tell AWS: "Don't wait for the MongoDB connection to close."
+    // Without this, AWS keeps the "timer" running and charges you more money.
+    context.callbackWaitsForEmptyEventLoop = false;
+
+    // Now run your Express app logic
+    const result = await serverlessHandler(event, context);
+
+    return result;
+};
+let isConnected = false;
+const connectDB = async () => {
+    if (isConnected) {
+        console.log("DB already connected, reusing connection");
+        return;
+    }
+    try {
+        const db = await mongoose.connect(process.env.MONGO_URI);
+        isConnected = db.connections[0].readyState;
+        console.log("MongoDB Connected!");
+    } catch (error) {
+        console.error("DB Connection Error:", error);
+    }
+};
