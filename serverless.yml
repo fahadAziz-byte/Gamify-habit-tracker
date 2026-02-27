@@ -8,8 +8,8 @@ provider:
   timeout: 15           # 15 seconds max per request
   environment:
     # Copy ALL your .env variables here manually
-    MONGO_URI: ${{secrets.MONGO_URI}}         
-    GEMINI_API_KEY: ${{secrets.GEMINI_API_KEY}}
+    MONGO_URI: ${env:MONGO_URI}
+    GEMINI_API_KEY: ${env:GEMINI_API_KEY}
     # Add any other variables your app needs
     # NODE_ENV: "production"
 

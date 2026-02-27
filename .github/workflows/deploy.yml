@@ -36,6 +36,8 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}          # ← This passes secret INTO the environment
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           
       - name: Check Lambda Logs
         run: serverless logs -f api --tail
