@@ -207,7 +207,7 @@ server.post('/signup', async (req, res) => {
         const doesUserExistAlready = await Users.findOne({ username: newUser.username });
 
         if (doesUserExistAlready) {
-            return res.render('Registration/Login', { error: 'User already exists' });
+            return res.render('Registration/login', { error: 'User already exists' });
         }
         await newUser.save();
         res.cookie('username', newUser.username, {
@@ -239,7 +239,7 @@ server.post('/login', async (req, res) => {
         });
         return res.redirect('/home');
     }
-    return res.render('Registration/Login', { error: 'No Such User exists' });
+    return res.render('Registration/login', { error: 'No Such User exists' });
 })
 
 server.get('/logout', (req, res) => {
