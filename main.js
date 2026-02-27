@@ -28,18 +28,28 @@ const server = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+server.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+}));
+server.options('*', cors());
+
 // 3. SETTINGS
 server.set('view engine', 'ejs');
 server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
 server.use(cookieParser());
 
-// WARNING: express-session in memory will NOT work perfectly on Lambda. 
-// For now, this is okay for testing, but eventually, you should use MongoDB store for sessions.
+import MongoStore from 'connect-mongo';
+
 server.use(session({
     secret: "my session secret",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI  // sessions saved in MongoDB
+    })
 }));
 
 server.use(express.static('public'));
@@ -53,14 +63,6 @@ server.use(async (req, res, next) => {
         res.status(500).json({ error: "Database connection failed" });
     }
 });
-
-
-server.use(cors({
-    origin: '*',  // For now allow all, we'll restrict later
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-server.options('*', cors());
 
 
 import multer from 'multer';
