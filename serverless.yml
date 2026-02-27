@@ -1,0 +1,32 @@
+service: my-mern-app   # Change this to your project name (no spaces)
+
+provider:
+  name: aws
+  runtime: nodejs18.x  # Check your version with "node -v", use 18 or 20
+  region: us-east-1
+  memorySize: 512       # 512MB RAM for your function
+  timeout: 15           # 15 seconds max per request
+  environment:
+    # Copy ALL your .env variables here manually
+    GEMINI_API_KEY: "AIzaSyDWT7aYR7bq1SifEvdc4nyb02uY_LC9_Ps"
+    MONGO_URI: "mongodb+srv://fahadaziz714:fproahadmotion@cluster0.zggk30s.mongodb.net/?appName=Cluster0"
+    # Add any other variables your app needs
+    # NODE_ENV: "production"
+
+functions:
+  api:
+    handler: main.handler   # "main" = your filename, "handler" = export name
+    events:
+      - http:
+          path: /           # Handles the root route
+          method: ANY
+      - http:
+          path: /{proxy+}   # Handles ALL other routes like /login, /users etc
+          method: ANY
+
+package:
+  patterns:
+    - '!node_modules/.cache/**'   # Don't upload cache
+    - '!uploads/**'               # Don't upload uploads folder
+    - '!.git/**'                  # Don't upload git history
+    - '!.env'                     # Don't upload .env (you put vars above)
