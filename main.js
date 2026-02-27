@@ -188,7 +188,6 @@ server.get('/', (req, res) => {
 server.get('/home', auth, async (req, res) => {
     try {
         const user = await Users.findOne({ username: req.cookies.username });
-        currentUserName = req.cookies.username;
         if (!user) return res.status(404).send('User not found');
         res.render('Homepage', { user });
     } catch (error) {
