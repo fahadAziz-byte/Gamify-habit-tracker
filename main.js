@@ -445,56 +445,15 @@ server.get('/habits', auth, async (req, res) => {
     const dueHabits = habits.filter(habit => habit.isCompletedToday != true);
     const completedHabits = habits.filter(habit => habit.isCompletedToday == true);
 
-    res.render('habits/habits', { habits, dueHabits, completedHabits, user });
-});
-
-server.get("/createHabit", auth, (req, res) => {
-    res.render("habits/createHabit");
-})
-
-
-
-dotenv.config();
-const apiKey = process.env.GEMINI_API_KEY; // Ensure you have set this in your .env file
-
-const genAI = new GoogleGenerativeAI(apiKey);
-const generationConfig = {
-    temperature: 0.3, // Lower temperature for more deterministic validation
-    topK: 1,
-    topP: 1,
-    maxOutputTokens: 2048,
-};
-const safetySettings = [
-    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-];
-
-const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash-latest", // or "gemini-pro"
-    generationConfig,
-    safetySettings
-});
-
-
-// Helper function to ask Gemini and parse a simple keyword response
-async function askGeminiSimple(promptText, expectedKeywords) {
-    try {
-        const result = await model.generateContent(promptText);
-        const response = await result.response;
-        const text = response.text().trim().toUpperCase(); // Normalize for easy checking
-
-        for (const keyword of expectedKeywords) {
-            if (text.includes(keyword.toUpperCase())) {
-                return keyword; // Return the keyword found
-            }
+    // Gemini configuration removed by user request
+    return keyword; // Return the keyword found
+}
         }
-        console.warn(`Gemini response did not contain expected keywords. Response: "${text}" Prompt: "${promptText}"`);
-        return "UNKNOWN_RESPONSE"; // Fallback if no keyword matched
+    console.warn(`Gemini response did not contain expected keywords. Response: "${text}" Prompt: "${promptText}"`);
+return "UNKNOWN_RESPONSE"; // Fallback if no keyword matched
     } catch (error) {
-        console.error("Error calling Gemini API:", error);
-    }
+    console.error("Error calling Gemini API:", error);
+}
 }
 
 
@@ -515,62 +474,40 @@ server.post("/createHabit", auth, async (req, res) => {
     }
 
     try {
-        // --- Step 1: Validate if it's a real habit ---
-        const validationPrompt = `
-            Habit Name: "${habitName}"
-            Habit Description: "${habitDescription}"
-
-            Based on the name and description, is this a recognizable human habit, or does it seem like random, nonsensical input (e.g., just numbers, random characters, gibberish)?
-            Your entire response should be ONLY one of the following keywords:
-            - REAL_HABIT
-            - INVALID_INPUT
-        `;
-
-        console.log("Sending validation prompt to Gemini...");
-        const validationResult = await askGeminiSimple(validationPrompt, ["REAL_HABIT", "Bad Habit", "INVALID_INPUT"]);
-        console.log("Gemini validation result:", validationResult);
-
-        if (validationResult === "INVALID_INPUT" || validationResult === "UNKNOWN_RESPONSE") {
+        // Basic Length Constraints
+        if (habitName.length < 3 || habitName.length > 50) {
             return res.render('habits/habits.ejs', {
                 habits, dueHabits, completedHabits, user,
-                message: `The input "${habitName}" seems like a ${validationResult}. Please enter a recognizable habit.`,
+                message: 'Habit name must be between 3 and 50 characters long.',
                 messageType: 'error'
             });
         }
 
-        // --- Step 2: Check if the habit is good (only if Step 1 passed) ---
-        const goodnessPrompt = `
-            Habit Name: "${habitName}"
-            Habit Description: "${habitDescription}"
-
-            Considering this habit, would it generally be considered a 'GOOD_HABIT' (beneficial, positive for well-being/productivity) or a 'BAD_HABIT' (detrimental, harmful, or generally unproductive)?
-            Ignore any moral judgments, focus on general well-being and common understanding.
-            Your entire response should be ONLY one of the following keywords:
-            - GOOD_HABIT
-            - BAD_HABIT
-        `;
-
-        console.log("Sending goodness prompt to Gemini...");
-        const goodnessResult = await askGeminiSimple(goodnessPrompt, ["GOOD_HABIT", "BAD_HABIT"]);
-        console.log("Gemini goodness result:", goodnessResult);
-
-        if (goodnessResult === "BAD_HABIT" || goodnessResult === "UNKNOWN_RESPONSE") {
+        if (habitDescription.length < 5 || habitDescription.length > 200) {
             return res.render('habits/habits.ejs', {
                 habits, dueHabits, completedHabits, user,
-                message: `The habit "${habitName}" is generally not considered a good habit. Please focus on positive habits.`,
+                message: 'Habit description must be between 5 and 200 characters long.',
                 messageType: 'error'
             });
         }
 
-        // --- If both checks pass: Add to "Habit Model" (simulation) ---
-        if (goodnessResult === "GOOD_HABIT") {
-            console.log(`SUCCESS: Habit "${habitName}" is valid and good. Adding to model.`);
-            let data = req.body;
-            data.username = req.cookies.username;
-            let newHabit = new Habit(data);
-            await newHabit.save();
-            res.redirect('/habits');
+        // Basic Regex Validation constraint (Alphanumerics, spaces, basic punctuation)
+        const validPattern = /^[a-zA-Z0-9\s.,!?'"-]+$/;
+
+        if (!validPattern.test(habitName)) {
+            return res.render('habits/habits.ejs', {
+                habits, dueHabits, completedHabits, user,
+                message: 'Habit name contains invalid characters. Please use only letters, numbers, and basic punctuation.',
+                messageType: 'error'
+            });
         }
+
+        console.log(`SUCCESS: Habit "${habitName}" is valid. Adding to model.`);
+        let data = req.body;
+        data.username = req.cookies.username;
+        let newHabit = new Habit(data);
+        await newHabit.save();
+        res.redirect('/habits');
 
     } catch (error) {
         console.error("Error during habit creation:", error);
