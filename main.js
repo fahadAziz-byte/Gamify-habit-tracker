@@ -445,16 +445,8 @@ server.get('/habits', auth, async (req, res) => {
     const dueHabits = habits.filter(habit => habit.isCompletedToday != true);
     const completedHabits = habits.filter(habit => habit.isCompletedToday == true);
 
-    // Gemini configuration removed by user request
-    return keyword; // Return the keyword found
-}
-        }
-    console.warn(`Gemini response did not contain expected keywords. Response: "${text}" Prompt: "${promptText}"`);
-return "UNKNOWN_RESPONSE"; // Fallback if no keyword matched
-    } catch (error) {
-    console.error("Error calling Gemini API:", error);
-}
-}
+    res.render('habits/habits', { habits, dueHabits, completedHabits, user });
+});
 
 
 
