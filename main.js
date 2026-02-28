@@ -513,73 +513,19 @@ server.post("/createHabit", auth, async (req, res) => {
             messageType: 'error'
         });
     }
+    let data = req.body;
+    data.username = req.cookies.username;
+    let newHabit = new Habit(data);
+    await newHabit.save();
+    res.redirect('/habits');
 
-    try {
-        // --- Step 1: Validate if it's a real habit ---
-        const validationPrompt = `
-            Habit Name: "${habitName}"
-            Habit Description: "${habitDescription}"
 
-            Based on the name and description, is this a recognizable human habit, or does it seem like random, nonsensical input (e.g., just numbers, random characters, gibberish)?
-            Your entire response should be ONLY one of the following keywords:
-            - REAL_HABIT
-            - INVALID_INPUT
-        `;
-
-        console.log("Sending validation prompt to Gemini...");
-        const validationResult = await askGeminiSimple(validationPrompt, ["REAL_HABIT", "INVALID_INPUT"]);
-        console.log("Gemini validation result:", validationResult);
-
-        if (validationResult === "INVALID_INPUT" || validationResult === "UNKNOWN_RESPONSE") {
-            return res.render('habits/habits.ejs', {
-                habits, dueHabits, completedHabits, user,
-                message: `The input "${habitName}" doesn't seem like a valid habit. Please enter a recognizable habit.`,
-                messageType: 'error'
-            });
-        }
-
-        // --- Step 2: Check if the habit is good (only if Step 1 passed) ---
-        const goodnessPrompt = `
-            Habit Name: "${habitName}"
-            Habit Description: "${habitDescription}"
-
-            Considering this habit, would it generally be considered a 'GOOD_HABIT' (beneficial, positive for well-being/productivity) or a 'BAD_HABIT' (detrimental, harmful, or generally unproductive)?
-            Ignore any moral judgments, focus on general well-being and common understanding.
-            Your entire response should be ONLY one of the following keywords:
-            - GOOD_HABIT
-            - BAD_HABIT
-        `;
-
-        console.log("Sending goodness prompt to Gemini...");
-        const goodnessResult = await askGeminiSimple(goodnessPrompt, ["GOOD_HABIT", "BAD_HABIT"]);
-        console.log("Gemini goodness result:", goodnessResult);
-
-        if (goodnessResult === "BAD_HABIT" || goodnessResult === "UNKNOWN_RESPONSE") {
-            return res.render('habits/habits.ejs', {
-                habits, dueHabits, completedHabits, user,
-                message: `The habit "${habitName}" is generally not considered a good habit. Please focus on positive habits.`,
-                messageType: 'error'
-            });
-        }
-
-        // --- If both checks pass: Add to "Habit Model" (simulation) ---
-        if (goodnessResult === "GOOD_HABIT") {
-            console.log(`SUCCESS: Habit "${habitName}" is valid and good. Adding to model.`);
-            let data = req.body;
-            data.username = req.cookies.username;
-            let newHabit = new Habit(data);
-            await newHabit.save();
-            res.redirect('/habits');
-        }
-
-    } catch (error) {
-        console.error("Error during habit creation:", error);
-        return res.render('habits/habits.ejs', {
-            habits, dueHabits, completedHabits, user,
-            message: 'An error occurred while creating the habit. Please try again.',
-            messageType: 'error'
-        });
-    }
+    console.error("Error during habit creation:", error);
+    return res.render('habits/habits.ejs', {
+        habits, dueHabits, completedHabits, user,
+        message: 'An error occurred while creating the habit. Please try again.',
+        messageType: 'error'
+    });
 });
 
 server.get("/checkInHabit/:_id", auth, async (req, res) => {
@@ -806,7 +752,6 @@ server.post('/activatePotion/:id', auth, async (req, res) => {
     const potionId = req.params.id;
 
     const potion = user.inventory.find(item => item.potionId.toString() === potionId);
-    console.log(potion);
     if (potion) {
         if (!potion.activatedAt) {
             const currentDate = new Date();
