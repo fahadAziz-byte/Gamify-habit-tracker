@@ -27,7 +27,7 @@ let usersSchema = mongoose.Schema({
             ref: 'Avatar',
             default: new mongoose.Types.ObjectId("67b8a57c0d6e268330339cb5"),
         },
-        imageURL: { type: String, default: "defaultProfile.svg" },
+        imageURL: { type: String, default: "https://res.cloudinary.com/dfhxolmgf/image/upload/v1772249477/gamify-habit-tracker/jd6fmxvzmh55l4xwuzkt.svg" },
     }
 });
 

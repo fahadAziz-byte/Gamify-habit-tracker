@@ -189,10 +189,23 @@ server.get('/home', auth, async (req, res) => {
 
 server.post('/signup', async (req, res) => {
     let data = req.body;
+
+    // Server-side Validations
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&.])[A-Za-z\d@$!%*#?&.]{8,}$/;
+    const phoneRegex = /^((\+92)|(0))3[0-9]{9}$/;
+
+    if (!emailRegex.test(data.email)) {
+        return res.render('Registration/login', { error: 'Invalid email format.' });
+    }
+    if (!passwordRegex.test(data.password)) {
+        return res.render('Registration/login', { error: 'Password must be at least 8 chars long, contain 1 alphabet, 1 number, and 1 special char.' });
+    }
+    if (!phoneRegex.test(data.phonenumber)) {
+        return res.render('Registration/login', { error: 'Invalid Pakistani phone number. Format: 03xxxxxxxxx or +923xxxxxxxxx' });
+    }
+
     let newUser = Users(data);
-
-
-
     try {
         const doesUserExistAlready = await Users.findOne({ username: newUser.username });
 

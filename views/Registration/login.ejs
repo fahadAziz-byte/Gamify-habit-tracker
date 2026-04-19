@@ -137,9 +137,9 @@
           <form action="signup" method="post">
             <label for="chk" aria-hidden="true">Sign up</label>
             <input type="text" name="username" placeholder="User name" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
-            <input type="text" name="phonenumber" placeholder="Phone Number" required>
+            <input type="email" name="email" placeholder="Email" required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" title="Please enter a valid email address.">
+            <input type="password" id="password" name="password" placeholder="Password (Min 8 chars, 1 Letter, 1 Number, 1 Special)" required pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&.])[A-Za-z\d@$!%*#?&.]{8,}$" title="Password must be at least 8 characters long, contain at least 1 alphabet, 1 number, and 1 special character.">
+            <input type="text" name="phonenumber" placeholder="Phone e.g. 03001234567 or +923001234567" required pattern="^((\+92)|(0))3[0-9]{9}$" title="Pakistani Phone Number format: 03001234567 or +923001234567">
             <button>Sign up</button>
           </form>
         </div>
