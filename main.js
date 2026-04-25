@@ -819,16 +819,25 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
 const serverlessHandler = serverless(server);
 
-// This is the actual function AWS Lambda calls
+// Web request handler — called by API Gateway on every HTTP request
 export const handler = async (event, context) => {
-
-    // --- THIS IS POINT 3 ---
-    // We tell AWS: "Don't wait for the MongoDB connection to close."
-    // Without this, AWS keeps the "timer" running and charges you more money.
     context.callbackWaitsForEmptyEventLoop = false;
-
-    // Now run your Express app logic
     const result = await serverlessHandler(event, context);
-
     return result;
+};
+
+// Scheduled handler — called by AWS EventBridge ONCE per day (cron)
+// Completely separate from web traffic, zero impact on user request speed
+export const dailyHandler = async (event, context) => {
+    context.callbackWaitsForEmptyEventLoop = false;
+    console.log("⏰ EventBridge daily trigger fired.");
+    try {
+        await connectDB();
+        await checkAndPerformDailyUpdates();
+        console.log("✅ Daily updates completed successfully.");
+        return { statusCode: 200, body: "Daily updates done." };
+    } catch (err) {
+        console.error("❌ Daily update failed:", err);
+        return { statusCode: 500, body: "Daily update failed." };
+    }
 };
