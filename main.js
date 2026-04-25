@@ -21,6 +21,19 @@ import calculateCoinsForStreak from './public/javascript/calculateCoins.js';
 import calculatePoints from './public/javascript/calculatePoints.js';
 import auth from './middleware/auth.js';
 import cors from 'cors';
+
+const isAdmin = async (req, res, next) => {
+    try {
+        const user = await Users.findOne({ username: req.cookies.username });
+        if (user && user.isAdmin) {
+            next();
+        } else {
+            res.status(403).send("Forbidden: You do not have admin access.");
+        }
+    } catch (err) {
+        res.status(500).send("Server Error in Admin Auth");
+    }
+};
 dotenv.config();
 const server = express();
 
@@ -251,22 +264,36 @@ server.get('/logout', (req, res) => {
 })
 
 server.get('/friendRequests', auth, async (req, res) => {
-    const sentRequests = await Requests.find({ senderUsername: req.cookies.username });
-    const currentUser = await Users.findOne({ username: req.cookies.username });
-    const receivedRequests = await Requests.find({ receiverUsername: req.cookies.username });
-    const senderUsernames = receivedRequests.map(req => req.senderUsername);
+    const currentUsername = req.cookies.username;
+    const currentUser = await Users.findOne({ username: currentUsername });
+
+    // Requests current user has SENT
+    const sentRequests = await Requests.find({ senderUsername: currentUsername });
+    const sentToUsernames = sentRequests.map(r => r.receiverUsername);
+
+    // Requests current user has RECEIVED
+    const receivedRequests = await Requests.find({ receiverUsername: currentUsername });
+    const senderUsernames = receivedRequests.map(r => r.senderUsername);
     const requestors = await Users.find({ username: { $in: senderUsernames } });
+
     try {
-
-
         const friendsList = await Users.find({ username: { $in: currentUser.friends } });
-        const suggestedFriendsList = await Users.find({ username: { $nin: currentUser.friends } });
+
+        // Exclude: self, existing friends, people who sent a request, people current user already sent a request to
+        const excludedUsernames = [
+            currentUsername,
+            ...currentUser.friends,
+            ...senderUsernames,
+            ...sentToUsernames
+        ];
+
+        const suggestedFriendsList = await Users.find({ username: { $nin: excludedUsernames } });
         res.render('friendRequests.ejs', { friendsList, suggestedFriendsList, requests: requestors, sentRequests, user: currentUser });
     } catch (err) {
-        const suggestedFriendsList = await Users.find();
+        console.error(err);
+        const suggestedFriendsList = await Users.find({ username: { $ne: currentUsername } });
         res.render('friendRequests.ejs', { suggestedFriendsList, currentUser, requests: requestors, sentRequests, user: currentUser });
     }
-
 })
 
 server.get('/addFriend/:username/:currusername', async (req, res) => {
@@ -634,18 +661,18 @@ server.post('/shop/buy-potion/:potionId', auth, async (req, res) => {
     }
 });
 
-server.get('/admin', auth, async (req, res) => {
+server.get('/admin', auth, isAdmin, async (req, res) => {
     const avatar = await Avatar.find();
     const potion = await Potion.find();
     const user = await Users.findOne({ username: req.cookies.username });
     res.render('admin/admin.ejs', { avatar, potion, userAvatarId: user.avatar.avatarId })
 })
 
-server.get('/createPotion', auth, async (req, res) => {
+server.get('/createPotion', auth, isAdmin, async (req, res) => {
     res.render('admin/newPotionForm.ejs');
 })
 
-server.post('/createPotion', upload.single("file"), async (req, res) => {
+server.post('/createPotion', upload.single("file"), auth, isAdmin, async (req, res) => {
     let data = {
         name: req.body.name,
         effectType: req.body.effectType,
@@ -659,17 +686,17 @@ server.post('/createPotion', upload.single("file"), async (req, res) => {
     res.redirect('/admin');
 })
 
-server.get('/editAvatar/:id', auth, async (req, res) => {
+server.get('/editAvatar/:id', auth, isAdmin, async (req, res) => {
     const avatar = await Avatar.findOne({ _id: req.params.id });
     res.render('admin/editAvatarForm', { avatar, avatarId: req.params.id });
 })
 
-server.get('/deleteAvatar/:id', auth, async (req, res) => {
+server.get('/deleteAvatar/:id', auth, isAdmin, async (req, res) => {
     await Avatar.deleteOne({ _id: req.params.id });
     res.redirect('/admin');
 });
 
-server.post('/editAvatar/:id', upload.single("file"), auth, async (req, res) => {
+server.post('/editAvatar/:id', upload.single("file"), auth, isAdmin, async (req, res) => {
     const avatar = await Avatar.findOne({ _id: req.params.id });
     let data = req.body;
     avatar.name = data.name;
@@ -682,11 +709,11 @@ server.post('/editAvatar/:id', upload.single("file"), auth, async (req, res) => 
     res.redirect('/admin');
 })
 
-server.get('/createAvatar', (req, res) => {
+server.get('/createAvatar', auth, isAdmin, (req, res) => {
     res.render('admin/newAvatarForm.ejs');
 })
 
-server.post('/createAvatar', upload.single("file"), async (req, res) => {
+server.post('/createAvatar', upload.single("file"), auth, isAdmin, async (req, res) => {
     let data = req.body;
     let newAvatar = new Avatar(data);
     if (req.file) {

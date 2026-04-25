@@ -15,7 +15,9 @@
                 <li class="nav-item"><a class="nav-link text-light fw-bold" href="inventory">Inventory</a></li>
                 <li class="nav-item"><a class="nav-link text-light fw-bold" href="Challenges">Challenges</a></li>
                 <li class="nav-item"><a class="nav-link text-light fw-bold" href="leaderboard">Leaderboard</a></li>
+                <% if (user && user.isAdmin) { %>
                 <li class="nav-item"><a class="nav-link text-light fw-bold" href="admin">Admin</a></li>
+                <% } %>
                 <li class="nav-item"><a class="nav-link text-light fw-bold" href="#"><span style="color: white;">
                             <%= user.coins %>
                         </span>🪙</a></li>

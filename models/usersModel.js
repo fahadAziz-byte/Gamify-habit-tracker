@@ -8,6 +8,7 @@ let usersSchema = mongoose.Schema({
     age: Number,
     friends: [String],
     habits: [String],
+    isAdmin: { type: Boolean, default: false },
     coins: { type: Number, default: 15 },
     inventory: [
         {
